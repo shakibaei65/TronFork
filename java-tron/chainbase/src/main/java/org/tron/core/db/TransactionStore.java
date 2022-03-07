@@ -16,7 +16,7 @@ import org.tron.core.exception.BadItemException;
 
 @Slf4j(topic = "DB")
 @Component
-public class TransactionStore extends AloneStoreWithRevoking<TransactionCapsule> {
+public class TransactionStore extends TronStoreWithRevoking<TransactionCapsule> {
 
   @Autowired
   private BlockStore blockStore;

@@ -143,14 +143,14 @@ public class RpcApiServiceOnSolidity implements Service {
     if (transaction == null) {
       return null;
     }
-    TransactionExtention.Builder alnExtBuilder = TransactionExtention.newBuilder();
+    TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
     Return.Builder retBuilder = Return.newBuilder();
-    alnExtBuilder.setTransaction(transaction);
-    alnExtBuilder.setTxid(Sha256Hash.of(CommonParameter.getInstance().isECKeyCryptoEngine(),
+    trxExtBuilder.setTransaction(transaction);
+    trxExtBuilder.setTxid(Sha256Hash.of(CommonParameter.getInstance().isECKeyCryptoEngine(),
         transaction.getRawData().toByteArray()).getByteString());
     retBuilder.setResult(true).setCode(response_code.SUCCESS);
-    alnExtBuilder.setResult(retBuilder);
-    return alnExtBuilder.build();
+    trxExtBuilder.setResult(retBuilder);
+    return trxExtBuilder.build();
   }
 
   private BlockExtention block2Extention(Block block) {
@@ -493,9 +493,9 @@ public class RpcApiServiceOnSolidity implements Service {
     }
 
     @Override
-    public void getBurnAln(EmptyMessage request, StreamObserver<NumberMessage> responseObserver) {
+    public void getBurnTrx(EmptyMessage request, StreamObserver<NumberMessage> responseObserver) {
       walletOnSolidity.futureGet(
-          () -> rpcApiService.getWalletSolidityApi().getBurnAln(request, responseObserver)
+          () -> rpcApiService.getWalletSolidityApi().getBurnTrx(request, responseObserver)
       );
     }
 

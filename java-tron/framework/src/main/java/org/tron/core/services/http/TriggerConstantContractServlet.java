@@ -50,7 +50,7 @@ public class TriggerConstantContractServlet extends RateLimiterServlet {
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
     TriggerSmartContract.Builder build = TriggerSmartContract.newBuilder();
-    TransactionExtention.Builder alnExtBuilder = TransactionExtention.newBuilder();
+    TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
     Return.Builder retBuilder = Return.newBuilder();
     boolean visible = false;
     try {
@@ -75,21 +75,21 @@ public class TriggerConstantContractServlet extends RateLimiterServlet {
       }
       long feeLimit = Util.getJsonLongValue(jsonObject, "fee_limit");
 
-      TransactionCapsule alnCap = wallet
+      TransactionCapsule trxCap = wallet
           .createTransactionCapsule(build.build(), ContractType.TriggerSmartContract);
 
-      Transaction.Builder txBuilder = alnCap.getInstance().toBuilder();
-      Transaction.raw.Builder rawBuilder = alnCap.getInstance().getRawData().toBuilder();
+      Transaction.Builder txBuilder = trxCap.getInstance().toBuilder();
+      Transaction.raw.Builder rawBuilder = trxCap.getInstance().getRawData().toBuilder();
       rawBuilder.setFeeLimit(feeLimit);
       txBuilder.setRawData(rawBuilder);
 
-      Transaction aln = wallet
+      Transaction trx = wallet
           .triggerConstantContract(build.build(), new TransactionCapsule(txBuilder.build()),
-              alnExtBuilder,
+              trxExtBuilder,
               retBuilder);
-      aln = Util.setTransactionPermissionId(jsonObject, aln);
-      aln = Util.setTransactionExtraData(jsonObject, aln, visible);
-      alnExtBuilder.setTransaction(aln);
+      trx = Util.setTransactionPermissionId(jsonObject, trx);
+      trx = Util.setTransactionExtraData(jsonObject, trx, visible);
+      trxExtBuilder.setTransaction(trx);
       retBuilder.setResult(true).setCode(response_code.SUCCESS);
     } catch (ContractValidateException e) {
       retBuilder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
@@ -102,7 +102,7 @@ public class TriggerConstantContractServlet extends RateLimiterServlet {
       retBuilder.setResult(false).setCode(response_code.OTHER_ERROR)
           .setMessage(ByteString.copyFromUtf8(e.getClass() + " : " + errString));
     }
-    alnExtBuilder.setResult(retBuilder);
-    response.getWriter().println(Util.printTransactionExtention(alnExtBuilder.build(), visible));
+    trxExtBuilder.setResult(retBuilder);
+    response.getWriter().println(Util.printTransactionExtention(trxExtBuilder.build(), visible));
   }
 }

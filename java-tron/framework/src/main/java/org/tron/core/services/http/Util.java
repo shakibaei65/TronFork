@@ -182,10 +182,10 @@ public class Util {
     return jsonObject.toJSONString();
   }
 
-  public static byte[] generateContractAddress(Transaction aln, byte[] ownerAddress) {
+  public static byte[] generateContractAddress(Transaction trx, byte[] ownerAddress) {
     // get tx hash
     byte[] txRawDataHash = Sha256Hash
-        .of(CommonParameter.getInstance().isECKeyCryptoEngine(), aln.getRawData().toByteArray())
+        .of(CommonParameter.getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())
         .getBytes();
 
     // combine
@@ -493,7 +493,7 @@ public class Util {
     return address;
   }
 
-  public static List<Log> convertLogAddressToAloneAddress(TransactionInfo transactionInfo) {
+  public static List<Log> convertLogAddressToTronAddress(TransactionInfo transactionInfo) {
     List<Log> newLogList = new ArrayList<>();
 
     for (Log log : transactionInfo.getLogList()) {
@@ -509,7 +509,7 @@ public class Util {
         int start = 20 - oldAddress.length;
         System.arraycopy(oldAddress, 0, newAddress, start, oldAddress.length);
         logBuilder
-            .setAddress(ByteString.copyFrom(TransactionTrace.convertToAloneAddress(newAddress)));
+            .setAddress(ByteString.copyFrom(TransactionTrace.convertToTronAddress(newAddress)));
       }
 
       newLogList.add(logBuilder.build());

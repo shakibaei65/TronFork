@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class VMIllegalException extends AloneException {
+public class VMIllegalException extends TronException {
 
   public VMIllegalException() {
     super();

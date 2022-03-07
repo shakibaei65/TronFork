@@ -40,7 +40,7 @@ public class InternalTransaction {
   private Transaction transaction;
   private byte[] hash;
   private byte[] parentHash;
-  /* the amount of aln to transfer (calculated as sun) */
+  /* the amount of trx to transfer (calculated as sun) */
   private long value;
 
   private Map<String, Long> tokenInfo = new HashMap<>();
@@ -75,29 +75,29 @@ public class InternalTransaction {
   /**
    * Construct a root InternalTransaction
    */
-  public InternalTransaction(Transaction aln, InternalTransaction.AlnType alnType)
+  public InternalTransaction(Transaction trx, InternalTransaction.TrxType trxType)
       throws ContractValidateException {
-    this.transaction = aln;
-    TransactionCapsule alnCap = new TransactionCapsule(aln);
-    this.protoEncoded = alnCap.getData();
+    this.transaction = trx;
+    TransactionCapsule trxCap = new TransactionCapsule(trx);
+    this.protoEncoded = trxCap.getData();
     this.nonce = 0;
     // outside transaction should not have deep, so use -1 to mark it is root.
     // It will not count in vm trace. But this deep will be shown in program result.
     this.deep = -1;
-    if (alnType == AlnType.ALN_CONTRACT_CREATION_TYPE) {
-      CreateSmartContract contract = ContractCapsule.getSmartContractFromTransaction(aln);
+    if (trxType == TrxType.TRX_CONTRACT_CREATION_TYPE) {
+      CreateSmartContract contract = ContractCapsule.getSmartContractFromTransaction(trx);
       if (contract == null) {
         throw new ContractValidateException("Invalid CreateSmartContract Protocol");
       }
       this.sendAddress = contract.getOwnerAddress().toByteArray();
       this.receiveAddress = EMPTY_BYTE_ARRAY;
-      this.transferToAddress = WalletUtil.generateContractAddress(aln);
+      this.transferToAddress = WalletUtil.generateContractAddress(trx);
       this.note = "create";
       this.value = contract.getNewContract().getCallValue();
       this.data = contract.getNewContract().getBytecode().toByteArray();
       this.tokenInfo.put(String.valueOf(contract.getTokenId()), contract.getCallTokenValue());
-    } else if (alnType == AlnType.ALN_CONTRACT_CALL_TYPE) {
-      TriggerSmartContract contract = ContractCapsule.getTriggerContractFromTransaction(aln);
+    } else if (trxType == TrxType.TRX_CONTRACT_CALL_TYPE) {
+      TriggerSmartContract contract = ContractCapsule.getTriggerContractFromTransaction(trx);
       if (contract == null) {
         throw new ContractValidateException("Invalid TriggerSmartContract Protocol");
       }
@@ -111,7 +111,7 @@ public class InternalTransaction {
     } else {
       // do nothing, just for running byte code
     }
-    this.hash = alnCap.getTransactionId().getBytes();
+    this.hash = trxCap.getTransactionId().getBytes();
   }
 
   /**
@@ -132,12 +132,12 @@ public class InternalTransaction {
     } else {
       this.receiveAddress = ArrayUtils.nullToEmpty(transferToAddress);
     }
-    // in this case, value also can represent a tokenValue when tokenId is not null, otherwise it is a aln callvalue.
+    // in this case, value also can represent a tokenValue when tokenId is not null, otherwise it is a trx callvalue.
     this.value = value;
     this.data = ArrayUtils.nullToEmpty(data);
     this.nonce = nonce;
     this.hash = getHash();
-    // in a contract call contract case, only one value should be used. aln or a token. can't be both. We should avoid using
+    // in a contract call contract case, only one value should be used. trx or a token. can't be both. We should avoid using
     // tokenValue in this case.
     if (tokenInfo != null) {
       this.tokenInfo.putAll(tokenInfo);
@@ -262,11 +262,11 @@ public class InternalTransaction {
     return protoEncoded.clone();
   }
 
-  public enum AlnType {
-    ALN_PRECOMPILED_TYPE,
-    ALN_CONTRACT_CREATION_TYPE,
-    ALN_CONTRACT_CALL_TYPE,
-    ALN_UNKNOWN_TYPE,
+  public enum TrxType {
+    TRX_PRECOMPILED_TYPE,
+    TRX_CONTRACT_CREATION_TYPE,
+    TRX_CONTRACT_CALL_TYPE,
+    TRX_UNKNOWN_TYPE,
   }
 
   public enum ExecutorType {

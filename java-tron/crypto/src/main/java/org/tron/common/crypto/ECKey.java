@@ -53,7 +53,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.Hex;
 import org.tron.common.crypto.jce.ECKeyFactory;
 import org.tron.common.crypto.jce.ECKeyPairGenerator;
-import org.tron.common.crypto.jce.AloneCastleProvider;
+import org.tron.common.crypto.jce.TronCastleProvider;
 import org.tron.common.utils.BIUtil;
 import org.tron.common.utils.ByteUtil;
 
@@ -152,7 +152,7 @@ public class ECKey implements Serializable, SignInterface {
    * @param secureRandom -
    */
   public ECKey(SecureRandom secureRandom) {
-    this(AloneCastleProvider.getInstance(), secureRandom);
+    this(TronCastleProvider.getInstance(), secureRandom);
   }
 
   /**
@@ -170,7 +170,7 @@ public class ECKey implements Serializable, SignInterface {
       this.privKey = null;
       this.pub = CURVE.getCurve().decodePoint(key);
     }
-    this.provider = AloneCastleProvider.getInstance();
+    this.provider = TronCastleProvider.getInstance();
   }
 
   public ECKey(Provider provider, @Nullable PrivateKey privKey, ECPoint pub) {
@@ -200,7 +200,7 @@ public class ECKey implements Serializable, SignInterface {
    */
   public ECKey(@Nullable BigInteger priv, ECPoint pub) {
     this(
-        AloneCastleProvider.getInstance(),
+        TronCastleProvider.getInstance(),
         privateKeyFromBigInteger(priv),
         pub
     );
@@ -235,7 +235,7 @@ public class ECKey implements Serializable, SignInterface {
     } else {
       try {
         return ECKeyFactory
-            .getInstance(AloneCastleProvider.getInstance())
+            .getInstance(TronCastleProvider.getInstance())
             .generatePrivate(new ECPrivateKeySpec(priv,
                 CURVE_SPEC));
       } catch (InvalidKeySpecException ex) {

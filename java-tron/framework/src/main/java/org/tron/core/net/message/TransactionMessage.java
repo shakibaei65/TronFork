@@ -5,14 +5,14 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.protos.Protocol.Transaction;
 
-public class TransactionMessage extends AloneMessage {
+public class TransactionMessage extends TronMessage {
 
   private TransactionCapsule transactionCapsule;
 
   public TransactionMessage(byte[] data) throws Exception {
     super(data);
     this.transactionCapsule = new TransactionCapsule(getCodedInputStream(data));
-    this.type = MessageTypes.ALN.asByte();
+    this.type = MessageTypes.TRX.asByte();
     if (Message.isFilter()) {
       compareBytes(data, transactionCapsule.getInstance().toByteArray());
       transactionCapsule
@@ -20,10 +20,10 @@ public class TransactionMessage extends AloneMessage {
     }
   }
 
-  public TransactionMessage(Transaction aln) {
-    this.transactionCapsule = new TransactionCapsule(aln);
-    this.type = MessageTypes.ALN.asByte();
-    this.data = aln.toByteArray();
+  public TransactionMessage(Transaction trx) {
+    this.transactionCapsule = new TransactionCapsule(trx);
+    this.type = MessageTypes.TRX.asByte();
+    this.data = trx.toByteArray();
   }
 
   @Override

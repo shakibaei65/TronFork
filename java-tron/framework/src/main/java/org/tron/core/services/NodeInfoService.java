@@ -142,9 +142,9 @@ public class NodeInfoService {
       peerInfo.setLastSyncBlock(peerConnection.getLastSyncBlockId() == null ? ""
           : peerConnection.getLastSyncBlockId().getString());
       ReasonCode reasonCode = peerConnection.getNodeStatistics()
-          .getAloneLastLocalDisconnectReason();
+          .getTronLastLocalDisconnectReason();
       peerInfo.setLocalDisconnectReason(reasonCode == null ? "" : reasonCode.toString());
-      reasonCode = peerConnection.getNodeStatistics().getAloneLastRemoteDisconnectReason();
+      reasonCode = peerConnection.getNodeStatistics().getTronLastRemoteDisconnectReason();
       peerInfo.setRemoteDisconnectReason(reasonCode == null ? "" : reasonCode.toString());
       peerInfo.setNeedSyncFromPeer(peerConnection.isNeedSyncFromPeer());
       peerInfo.setNeedSyncFromUs(peerConnection.isNeedSyncFromUs());

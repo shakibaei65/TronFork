@@ -12,7 +12,7 @@ import org.tron.core.metrics.MetricsKey;
 import org.tron.core.metrics.MetricsUtil;
 import org.tron.core.net.message.MessageTypes;
 import org.tron.core.net.message.PbftMessageFactory;
-import org.tron.core.net.message.AloneMessageFactory;
+import org.tron.core.net.message.TronMessageFactory;
 
 @Component
 @Scope("prototype")
@@ -20,7 +20,7 @@ public class MessageCodec extends ByteToMessageDecoder {
 
   private Channel channel;
   private P2pMessageFactory p2pMessageFactory = new P2pMessageFactory();
-  private AloneMessageFactory aloneMessageFactory = new AloneMessageFactory();
+  private TronMessageFactory tronMessageFactory = new TronMessageFactory();
   private PbftMessageFactory pbftMessageFactory = new PbftMessageFactory();
 
   @Override
@@ -48,8 +48,8 @@ public class MessageCodec extends ByteToMessageDecoder {
     if (MessageTypes.inP2pRange(type)) {
       return p2pMessageFactory.create(encoded);
     }
-    if (MessageTypes.inAloneRange(type)) {
-      return aloneMessageFactory.create(encoded);
+    if (MessageTypes.inTronRange(type)) {
+      return tronMessageFactory.create(encoded);
     }
     if (MessageTypes.inPbftRange(type)) {
       return pbftMessageFactory.create(encoded);

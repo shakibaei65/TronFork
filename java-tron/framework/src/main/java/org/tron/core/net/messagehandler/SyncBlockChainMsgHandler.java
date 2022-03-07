@@ -10,22 +10,22 @@ import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.message.ChainInventoryMessage;
 import org.tron.core.net.message.SyncBlockChainMessage;
-import org.tron.core.net.message.AloneMessage;
+import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.protos.Protocol;
 
 @Slf4j(topic = "net")
 @Component
-public class SyncBlockChainMsgHandler implements AloneMsgHandler {
+public class SyncBlockChainMsgHandler implements TronMsgHandler {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   @Override
-  public void processMessage(PeerConnection peer, AloneMessage msg) throws P2pException {
+  public void processMessage(PeerConnection peer, TronMessage msg) throws P2pException {
 
     SyncBlockChainMessage syncBlockChainMessage = (SyncBlockChainMessage) msg;
 
@@ -45,7 +45,7 @@ public class SyncBlockChainMsgHandler implements AloneMsgHandler {
       peer.setNeedSyncFromUs(false);
     } else {
       peer.setNeedSyncFromUs(true);
-      remainNum = aloneNetDelegate.getHeadBlockId().getNum() - blockIds.peekLast().getNum();
+      remainNum = tronNetDelegate.getHeadBlockId().getNum() - blockIds.peekLast().getNum();
     }
 
     peer.setLastSyncBlockId(blockIds.peekLast());
@@ -60,11 +60,11 @@ public class SyncBlockChainMsgHandler implements AloneMsgHandler {
     }
 
     BlockId firstId = blockIds.get(0);
-    if (!aloneNetDelegate.containBlockInMainChain(firstId)) {
+    if (!tronNetDelegate.containBlockInMainChain(firstId)) {
       throw new P2pException(TypeEnum.BAD_MESSAGE, "No first block:" + firstId.getString());
     }
 
-    long headNum = aloneNetDelegate.getHeadBlockId().getNum();
+    long headNum = tronNetDelegate.getHeadBlockId().getNum();
     if (firstId.getNum() > headNum) {
       throw new P2pException(TypeEnum.BAD_MESSAGE,
           "First blockNum:" + firstId.getNum() + " gt my head BlockNum:" + headNum);
@@ -82,7 +82,7 @@ public class SyncBlockChainMsgHandler implements AloneMsgHandler {
 
     BlockId unForkId = null;
     for (int i = blockIds.size() - 1; i >= 0; i--) {
-      if (aloneNetDelegate.containBlockInMainChain(blockIds.get(i))) {
+      if (tronNetDelegate.containBlockInMainChain(blockIds.get(i))) {
         unForkId = blockIds.get(i);
         break;
       }
@@ -92,12 +92,12 @@ public class SyncBlockChainMsgHandler implements AloneMsgHandler {
       throw new P2pException(TypeEnum.SYNC_FAILED, "unForkId is null");
     }
 
-    long len = Math.min(aloneNetDelegate.getHeadBlockId().getNum(),
+    long len = Math.min(tronNetDelegate.getHeadBlockId().getNum(),
         unForkId.getNum() + NetConstants.SYNC_FETCH_BATCH_NUM);
 
     LinkedList<BlockId> ids = new LinkedList<>();
     for (long i = unForkId.getNum(); i <= len; i++) {
-      BlockId id = aloneNetDelegate.getBlockIdByNum(i);
+      BlockId id = tronNetDelegate.getBlockIdByNum(i);
       ids.add(id);
     }
     return ids;

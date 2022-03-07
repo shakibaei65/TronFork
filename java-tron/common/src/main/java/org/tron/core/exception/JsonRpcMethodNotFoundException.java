@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class JsonRpcMethodNotFoundException extends AloneException {
+public class JsonRpcMethodNotFoundException extends TronException {
 
   public JsonRpcMethodNotFoundException() {
     super();

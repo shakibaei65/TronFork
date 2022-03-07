@@ -27,14 +27,14 @@ import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.db.PbftSignDataStore;
 import org.tron.core.exception.P2pException;
 import org.tron.core.net.message.PbftCommitMessage;
-import org.tron.core.net.message.AloneMessage;
+import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.protos.Protocol.PBFTMessage.DataType;
 import org.tron.protos.Protocol.PBFTMessage.Raw;
 
 @Slf4j(topic = "pbft-data-sync")
 @Service
-public class PbftDataSyncHandler implements AloneMsgHandler {
+public class PbftDataSyncHandler implements TronMsgHandler {
 
   private Map<Long, PbftCommitMessage> pbftCommitMessageCache = new ConcurrentHashMap<>();
 
@@ -45,7 +45,7 @@ public class PbftDataSyncHandler implements AloneMsgHandler {
   private ChainBaseManager chainBaseManager;
 
   @Override
-  public void processMessage(PeerConnection peer, AloneMessage msg) throws P2pException {
+  public void processMessage(PeerConnection peer, TronMessage msg) throws P2pException {
     PbftCommitMessage pbftCommitMessage = (PbftCommitMessage) msg;
     try {
       Raw raw = Raw.parseFrom(pbftCommitMessage.getPBFTCommitResult().getData());

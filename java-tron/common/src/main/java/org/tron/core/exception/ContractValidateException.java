@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class ContractValidateException extends AloneException {
+public class ContractValidateException extends TronException {
 
   public ContractValidateException() {
     super();

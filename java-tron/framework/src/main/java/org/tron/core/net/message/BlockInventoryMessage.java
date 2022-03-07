@@ -7,7 +7,7 @@ import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.BlockInventory;
 
-public class BlockInventoryMessage extends AloneMessage {
+public class BlockInventoryMessage extends TronMessage {
 
   protected BlockInventory blockInventory;
 

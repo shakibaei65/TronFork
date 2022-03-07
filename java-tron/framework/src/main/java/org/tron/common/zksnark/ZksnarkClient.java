@@ -2,7 +2,7 @@ package org.tron.common.zksnark;
 
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
-import org.tron.api.AloneZksnarkGrpc;
+import org.tron.api.TronZksnarkGrpc;
 import org.tron.api.ZksnarkGrpcAPI.ZksnarkRequest;
 import org.tron.api.ZksnarkGrpcAPI.ZksnarkResponse.Code;
 import org.tron.core.capsule.TransactionCapsule;
@@ -12,10 +12,10 @@ public class ZksnarkClient {
 
   public static final ZksnarkClient instance = new ZksnarkClient();
 
-  private AloneZksnarkGrpc.AloneZksnarkBlockingStub blockingStub;
+  private TronZksnarkGrpc.TronZksnarkBlockingStub blockingStub;
 
   public ZksnarkClient() {
-    blockingStub = AloneZksnarkGrpc.newBlockingStub(ManagedChannelBuilder
+    blockingStub = TronZksnarkGrpc.newBlockingStub(ManagedChannelBuilder
         .forTarget("127.0.0.1:60051")
         .usePlaintext()
         .build());

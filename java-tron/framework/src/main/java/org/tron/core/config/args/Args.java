@@ -166,7 +166,7 @@ public class Args extends CommonParameter {
     // PARAMETER.allowShieldedTransaction = 0;
     PARAMETER.maxHttpConnectNumber = 50;
     PARAMETER.allowMultiSign = 0;
-    PARAMETER.alnExpirationTimeInMilliseconds = 0;
+    PARAMETER.trxExpirationTimeInMilliseconds = 0;
     PARAMETER.fullNodeAllowShieldedTransactionArgs = true;
     PARAMETER.zenTokenId = "000000";
     PARAMETER.allowProtoFilterNum = 0;
@@ -374,6 +374,7 @@ public class Args extends CommonParameter {
                 .filter(StringUtils::isNotEmpty)
                 .orElse(Storage.getTransactionHistorySwitchFromConfig(config)));
 
+    PARAMETER.storage.setDefaultDbOptions(config);
     PARAMETER.storage.setPropertyMapFromConfig(config);
 
     PARAMETER.seedNode = new SeedNode();
@@ -529,9 +530,9 @@ public class Args extends CommonParameter {
       PARAMETER.blockProducedTimeOut = 100;
     }
 
-    PARAMETER.netMaxAlnPerSecond = config.hasPath(Constant.NODE_NET_MAX_ALN_PER_SECOND)
-        ? config.getInt(Constant.NODE_NET_MAX_ALN_PER_SECOND)
-        : NetConstants.NET_MAX_ALN_PER_SECOND;
+    PARAMETER.netMaxTrxPerSecond = config.hasPath(Constant.NODE_NET_MAX_TRX_PER_SECOND)
+        ? config.getInt(Constant.NODE_NET_MAX_TRX_PER_SECOND)
+        : NetConstants.NET_MAX_TRX_PER_SECOND;
 
     PARAMETER.maxConnectionAgeInMillis =
         config.hasPath(Constant.NODE_RPC_MAX_CONNECTION_AGE_IN_MILLIS)
@@ -639,20 +640,20 @@ public class Args extends CommonParameter {
         config.hasPath(Constant.STORAGE_NEEDTO_UPDATE_ASSET) ? config
             .getBoolean(Constant.STORAGE_NEEDTO_UPDATE_ASSET)
             : true;
-    PARAMETER.alnReferenceBlock = config.hasPath(Constant.ALN_REFERENCE_BLOCK)
-        ? config.getString(Constant.ALN_REFERENCE_BLOCK) : "head";
+    PARAMETER.trxReferenceBlock = config.hasPath(Constant.TRX_REFERENCE_BLOCK)
+        ? config.getString(Constant.TRX_REFERENCE_BLOCK) : "head";
 
-    PARAMETER.alnExpirationTimeInMilliseconds =
-        config.hasPath(Constant.ALN_EXPIRATION_TIME_IN_MILLIS_SECONDS)
-            && config.getLong(Constant.ALN_EXPIRATION_TIME_IN_MILLIS_SECONDS) > 0
-            ? config.getLong(Constant.ALN_EXPIRATION_TIME_IN_MILLIS_SECONDS)
+    PARAMETER.trxExpirationTimeInMilliseconds =
+        config.hasPath(Constant.TRX_EXPIRATION_TIME_IN_MILLIS_SECONDS)
+            && config.getLong(Constant.TRX_EXPIRATION_TIME_IN_MILLIS_SECONDS) > 0
+            ? config.getLong(Constant.TRX_EXPIRATION_TIME_IN_MILLIS_SECONDS)
             : Constant.TRANSACTION_DEFAULT_EXPIRATION_TIME;
 
     PARAMETER.minEffectiveConnection = config.hasPath(Constant.NODE_RPC_MIN_EFFECTIVE_CONNECTION)
         ? config.getInt(Constant.NODE_RPC_MIN_EFFECTIVE_CONNECTION) : 1;
 
-    PARAMETER.alnCacheEnable = config.hasPath(Constant.NODE_RPC_ALN_CACHE_ENABLE)
-            && config.getBoolean(Constant.NODE_RPC_ALN_CACHE_ENABLE);
+    PARAMETER.trxCacheEnable = config.hasPath(Constant.NODE_RPC_TRX_CACHE_ENABLE)
+            && config.getBoolean(Constant.NODE_RPC_TRX_CACHE_ENABLE);
 
     PARAMETER.blockNumForEnergyLimit = config.hasPath(Constant.ENERGY_LIMIT_BLOCK_NUM)
         ? config.getInt(Constant.ENERGY_LIMIT_BLOCK_NUM) : 4727890L;
@@ -805,8 +806,10 @@ public class Args extends CommonParameter {
     PARAMETER.historyBalanceLookup = config.hasPath(Constant.HISTORY_BALANCE_LOOKUP) && config
         .getBoolean(Constant.HISTORY_BALANCE_LOOKUP);
 
-    PARAMETER.openPrintLog = config.hasPath(Constant.OPEN_PRINT_LOG) && config
-        .getBoolean(Constant.OPEN_PRINT_LOG);
+    if (config.hasPath(Constant.OPEN_PRINT_LOG)) {
+      PARAMETER.openPrintLog = config.getBoolean(Constant.OPEN_PRINT_LOG);
+    }
+
     PARAMETER.openTransactionSort = config.hasPath(Constant.OPEN_TRANSACTION_SORT) && config
         .getBoolean(Constant.OPEN_TRANSACTION_SORT);
 

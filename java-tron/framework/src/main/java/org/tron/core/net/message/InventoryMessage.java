@@ -10,7 +10,7 @@ import org.tron.protos.Protocol.Inventory;
 import org.tron.protos.Protocol.Inventory.InventoryType;
 
 
-public class InventoryMessage extends AloneMessage {
+public class InventoryMessage extends TronMessage {
 
   protected Inventory inv;
 
@@ -49,7 +49,7 @@ public class InventoryMessage extends AloneMessage {
   }
 
   public MessageTypes getInvMessageType() {
-    return getInventoryType().equals(InventoryType.BLOCK) ? MessageTypes.BLOCK : MessageTypes.ALN;
+    return getInventoryType().equals(InventoryType.BLOCK) ? MessageTypes.BLOCK : MessageTypes.TRX;
 
   }
 

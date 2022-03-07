@@ -13,7 +13,7 @@ public abstract class WalletOnCursor {
   @Autowired
   private Manager dbManager;
 
-  public <T> T futureGet(AloneCallable<T> callable) {
+  public <T> T futureGet(TronCallable<T> callable) {
     try {
       dbManager.setCursor(cursor);
       return callable.call();
@@ -31,7 +31,7 @@ public abstract class WalletOnCursor {
     }
   }
 
-  public interface AloneCallable<T> extends Callable<T> {
+  public interface TronCallable<T> extends Callable<T> {
 
     @Override
     T call();

@@ -27,7 +27,7 @@ import org.tron.core.services.interfaceOnSolidity.http.GetBlockByLatestNumOnSoli
 import org.tron.core.services.interfaceOnSolidity.http.GetBlockByLimitNextOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetBlockByNumOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetBrokerageOnSolidityServlet;
-import org.tron.core.services.interfaceOnSolidity.http.GetBurnAlnOnSolidityServlet;
+import org.tron.core.services.interfaceOnSolidity.http.GetBurnTrxOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetDelegatedResourceAccountIndexOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetDelegatedResourceOnSolidityServlet;
 import org.tron.core.services.interfaceOnSolidity.http.GetEnergyPricesOnSolidityServlet;
@@ -131,7 +131,7 @@ public class HttpApiOnSolidityService implements Service {
   @Autowired
   private GetRewardOnSolidityServlet getRewardServlet;
   @Autowired
-  private GetBurnAlnOnSolidityServlet getBurnAlnOnSolidityServlet;
+  private GetBurnTrxOnSolidityServlet getBurnTrxOnSolidityServlet;
   @Autowired
   private TriggerConstantContractOnSolidityServlet triggerConstantContractOnSolidityServlet;
   @Autowired
@@ -254,7 +254,7 @@ public class HttpApiOnSolidityService implements Service {
       context.addServlet(new ServletHolder(getBrokerageServlet), "/walletsolidity/getBrokerage");
       context.addServlet(new ServletHolder(getRewardServlet), "/walletsolidity/getReward");
       context
-          .addServlet(new ServletHolder(getBurnAlnOnSolidityServlet), "/walletsolidity/getburnaln");
+          .addServlet(new ServletHolder(getBurnTrxOnSolidityServlet), "/walletsolidity/getburntrx");
       context.addServlet(new ServletHolder(getEnergyPricesOnSolidityServlet),
           "/walletsolidity/getenergyprices");
 

@@ -88,7 +88,7 @@ public class CommonParameter {
       description = "Storage db is synchronous or not.(true or false)")
   public String storageDbSynchronous = "";
   @Parameter(names = {"--contract-parse-enable"},
-      description = "enable contract parses in java-alone or not.(true or false)")
+      description = "enable contract parses in java-tron or not.(true or false)")
   public String contractParseEnable = "";
   @Parameter(names = {"--storage-index-directory"},
       description = "Storage index directory")
@@ -156,7 +156,7 @@ public class CommonParameter {
   @Getter
   @Setter
   public String p2pNodeId;
-  //If you are running a solidity node for java alone, this flag is set to true
+  //If you are running a solidity node for java tron, this flag is set to true
   @Getter
   @Setter
   public boolean solidityNode = false;
@@ -203,7 +203,7 @@ public class CommonParameter {
   public int blockProducedTimeOut;
   @Getter
   @Setter
-  public long netMaxAlnPerSecond;
+  public long netMaxTrxPerSecond;
   @Getter
   @Setter
   public long maxConnectionAgeInMillis;
@@ -305,13 +305,13 @@ public class CommonParameter {
   public boolean needToUpdateAsset;
   @Getter
   @Setter
-  public String alnReferenceBlock;
+  public String trxReferenceBlock;
   @Getter
   @Setter
   public int minEffectiveConnection;
   @Getter
   @Setter
-  public boolean alnCacheEnable;
+  public boolean trxCacheEnable;
   @Getter
   @Setter
   public long allowMarketTransaction; //committee parameter
@@ -344,7 +344,7 @@ public class CommonParameter {
   public boolean eventSubscribe = false;
   @Getter
   @Setter
-  public long alnExpirationTimeInMilliseconds; // (ms)
+  public long trxExpirationTimeInMilliseconds; // (ms)
   @Parameter(names = {"-v", "--version"}, description = "output code version", help = true)
   public boolean version;
   @Getter
@@ -358,7 +358,7 @@ public class CommonParameter {
   public long allowAccountStateRoot;
   @Getter
   @Setter
-  public int validContractProtoThreadNum;
+  public int validContractProtoThreadNum = 1;
   @Getter
   @Setter
   public int shieldedTransInPendingMaxCounts;
@@ -524,5 +524,9 @@ public class CommonParameter {
   public boolean isECKeyCryptoEngine() {
 
     return cryptoEngine.equalsIgnoreCase(Constant.ECKey_ENGINE);
+  }
+
+  public boolean isJsonRpcFilterEnabled() {
+    return jsonRpcHttpFullNodeEnable || jsonRpcHttpSolidityNodeEnable;
   }
 }

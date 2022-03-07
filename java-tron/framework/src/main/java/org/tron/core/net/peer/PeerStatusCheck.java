@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.core.config.Parameter.NetConstants;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.protos.Protocol.ReasonCode;
 
 @Slf4j(topic = "net")
@@ -15,7 +15,7 @@ import org.tron.protos.Protocol.ReasonCode;
 public class PeerStatusCheck {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   private ScheduledExecutorService peerStatusCheckExecutor = Executors
       .newSingleThreadScheduledExecutor();
@@ -40,7 +40,7 @@ public class PeerStatusCheck {
 
     long now = System.currentTimeMillis();
 
-    aloneNetDelegate.getActivePeer().forEach(peer -> {
+    tronNetDelegate.getActivePeer().forEach(peer -> {
 
       boolean isDisconnected = false;
 

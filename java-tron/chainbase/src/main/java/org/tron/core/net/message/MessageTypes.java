@@ -7,11 +7,11 @@ public enum MessageTypes {
 
   FIRST(0x00),
 
-  ALN(0x01),
+  TRX(0x01),
 
   BLOCK(0x02),
 
-  ALNS(0x03),
+  TRXS(0x03),
 
   BLOCKS(0x04),
 
@@ -31,7 +31,7 @@ public enum MessageTypes {
 
   BLOCK_INVENTORY(0x12),
 
-  ALN_INVENTORY(0x13),
+  TRX_INVENTORY(0x13),
 
   PBFT_COMMIT_MSG(0x14),
 
@@ -81,7 +81,7 @@ public enum MessageTypes {
     return code <= P2P_PONG.asByte() && code >= P2P_HELLO.asByte();
   }
 
-  public static boolean inAloneRange(byte code) {
+  public static boolean inTronRange(byte code) {
     return code <= PBFT_COMMIT_MSG.asByte() && code >= FIRST.asByte();
   }
 
@@ -97,7 +97,7 @@ public enum MessageTypes {
   public String toString() {
     switch (type) {
       case 1:
-        return "ALN";
+        return "TRX";
       case 2:
         return "BLOCK";
       case 6:

@@ -30,7 +30,7 @@ import java.security.Security;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.math.ec.ECPoint;
-import org.tron.common.crypto.jce.AloneCastleProvider;
+import org.tron.common.crypto.jce.TronCastleProvider;
 import org.tron.common.utils.DecodeUtil;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
@@ -68,10 +68,10 @@ public class Hash {
   private static final int SIZE_THRESHOLD = 56;
 
   static {
-    Security.addProvider(AloneCastleProvider.getInstance());
+    Security.addProvider(TronCastleProvider.getInstance());
     CRYPTO_PROVIDER = Security.getProvider("BC");
-    HASH_256_ALGORITHM_NAME = "ALONE-KECCAK-256";
-    HASH_512_ALGORITHM_NAME = "ALONE-KECCAK-512";
+    HASH_256_ALGORITHM_NAME = "TRON-KECCAK-256";
+    HASH_512_ALGORITHM_NAME = "TRON-KECCAK-512";
     EMPTY_TRIE_HASH = sha3(encodeElement(EMPTY_BYTE_ARRAY));
   }
 

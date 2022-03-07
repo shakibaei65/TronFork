@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class AccountResourceInsufficientException extends AloneException {
+public class AccountResourceInsufficientException extends TronException {
 
   public AccountResourceInsufficientException() {
     super("Insufficient bandwidth and balance to create new account");

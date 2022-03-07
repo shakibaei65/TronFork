@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.capsule.utils;
 
 import com.google.protobuf.ByteString;
@@ -44,7 +59,7 @@ public class TransactionUtil {
         Contract.ContractType.TransferContract).getInstance();
   }
 
-  public static TransactionInfoCapsule buildTransactionInfoInstance(TransactionCapsule alnCap,
+  public static TransactionInfoCapsule buildTransactionInfoInstance(TransactionCapsule trxCap,
       BlockCapsule block, TransactionTrace trace) {
 
     TransactionInfo.Builder builder = TransactionInfo.newBuilder();
@@ -55,7 +70,7 @@ public class TransactionUtil {
       builder.setResult(code.FAILED);
       builder.setResMessage(ByteString.copyFromUtf8(trace.getRuntimeError()));
     }
-    builder.setId(ByteString.copyFrom(alnCap.getTransactionId().getBytes()));
+    builder.setId(ByteString.copyFrom(trxCap.getTransactionId().getBytes()));
     ProgramResult programResult = trace.getRuntimeResult();
     long fee =
         programResult.getRet().getFee() + traceReceipt.getEnergyFee()
@@ -127,7 +142,7 @@ public class TransactionUtil {
     //TODO: "for loop" below in future for multiple token case, we only have one for now.
     Protocol.InternalTransaction.CallValueInfo.Builder callValueInfoBuilder =
         Protocol.InternalTransaction.CallValueInfo.newBuilder();
-    // aln will not be set token name
+    // trx will not be set token name
     callValueInfoBuilder.setCallValue(it.getValue());
     // Just one transferBuilder for now.
     itBuilder.addCallValueInfo(callValueInfoBuilder);

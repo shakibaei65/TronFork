@@ -8,7 +8,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.capsule.MarketOrderIdListCapsule;
 import org.tron.core.capsule.utils.MarketUtils;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 /**
  * This store is used to store the first price Key of specific token pair
@@ -16,7 +16,7 @@ import org.tron.core.db.AloneStoreWithRevoking;
  * Value: sell_id + buy_id + sell_quantity + buy_quantity, use createPairPriceKey
  * */
 @Component
-public class MarketPairToPriceStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class MarketPairToPriceStore extends TronStoreWithRevoking<BytesCapsule> {
 
   @Autowired
   protected MarketPairToPriceStore(@Value("market_pair_to_price") String dbName) {

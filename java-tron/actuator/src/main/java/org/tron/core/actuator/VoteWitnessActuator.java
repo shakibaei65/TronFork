@@ -4,7 +4,7 @@ import static org.tron.core.actuator.ActuatorConstant.ACCOUNT_EXCEPTION_STR;
 import static org.tron.core.actuator.ActuatorConstant.NOT_EXIST_STR;
 import static org.tron.core.actuator.ActuatorConstant.WITNESS_EXCEPTION_STR;
 import static org.tron.core.config.Parameter.ChainConstant.MAX_VOTE_NUMBER;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.common.math.LongMath;
 import com.google.protobuf.ByteString;
@@ -135,7 +135,7 @@ public class VoteWitnessActuator extends AbstractActuator {
       }
 
       sum = LongMath
-          .checkedMultiply(sum, ALN_PRECISION); //aln -> drop. The vote count is based on ALN
+          .checkedMultiply(sum, TRX_PRECISION); //trx -> drop. The vote count is based on TRX
       if (sum > tronPower) {
         throw new ContractValidateException(
             "The total number of votes[" + sum + "] is greater than the tronPower[" + tronPower

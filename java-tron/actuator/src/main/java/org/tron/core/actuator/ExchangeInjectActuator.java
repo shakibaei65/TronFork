@@ -1,7 +1,7 @@
 package org.tron.core.actuator;
 
 import static org.tron.core.capsule.utils.TransactionUtil.isNumber;
-import static org.tron.core.config.Parameter.ChainSymbol.ALN_SYMBOL_BYTES;
+import static org.tron.core.config.Parameter.ChainSymbol.TRX_SYMBOL_BYTES;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -86,13 +86,13 @@ public class ExchangeInjectActuator extends AbstractActuator {
       long newBalance = accountCapsule.getBalance() - calcFee();
       accountCapsule.setBalance(newBalance);
 
-      if (Arrays.equals(tokenID, ALN_SYMBOL_BYTES)) {
+      if (Arrays.equals(tokenID, TRX_SYMBOL_BYTES)) {
         accountCapsule.setBalance(newBalance - tokenQuant);
       } else {
         accountCapsule.reduceAssetAmountV2(tokenID, tokenQuant, dynamicStore, assetIssueStore);
       }
 
-      if (Arrays.equals(anotherTokenID, ALN_SYMBOL_BYTES)) {
+      if (Arrays.equals(anotherTokenID, TRX_SYMBOL_BYTES)) {
         accountCapsule.setBalance(newBalance - anotherTokenQuant);
       } else {
         accountCapsule
@@ -180,7 +180,7 @@ public class ExchangeInjectActuator extends AbstractActuator {
     long anotherTokenQuant;
 
     if (dynamicStore.getAllowSameTokenName() == 1 &&
-        !Arrays.equals(tokenID, ALN_SYMBOL_BYTES) &&
+        !Arrays.equals(tokenID, TRX_SYMBOL_BYTES) &&
         !isNumber(tokenID)) {
       throw new ContractValidateException("token id is not a valid number");
     }
@@ -227,7 +227,7 @@ public class ExchangeInjectActuator extends AbstractActuator {
       throw new ContractValidateException("token balance must less than " + balanceLimit);
     }
 
-    if (Arrays.equals(tokenID, ALN_SYMBOL_BYTES)) {
+    if (Arrays.equals(tokenID, TRX_SYMBOL_BYTES)) {
       if (accountCapsule.getBalance() < (tokenQuant + calcFee())) {
         throw new ContractValidateException("balance is not enough");
       }
@@ -237,7 +237,7 @@ public class ExchangeInjectActuator extends AbstractActuator {
       }
     }
 
-    if (Arrays.equals(anotherTokenID, ALN_SYMBOL_BYTES)) {
+    if (Arrays.equals(anotherTokenID, TRX_SYMBOL_BYTES)) {
       if (accountCapsule.getBalance() < (anotherTokenQuant + calcFee())) {
         throw new ContractValidateException("balance is not enough");
       }

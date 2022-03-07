@@ -16,11 +16,11 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.core.capsule.BytesCapsule;
 import org.tron.core.config.Parameter;
 import org.tron.core.config.Parameter.ChainConstant;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 @Slf4j(topic = "DB")
 @Component
-public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class DynamicPropertiesStore extends TronStoreWithRevoking<BytesCapsule> {
 
   private static final byte[] LATEST_BLOCK_HEADER_TIMESTAMP = "latest_block_header_timestamp"
       .getBytes();
@@ -153,7 +153,7 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
   private static final byte[] TRANSACTION_FEE_POOL = "TRANSACTION_FEE_POOL".getBytes();
 
   private static final byte[] MAX_FEE_LIMIT = "MAX_FEE_LIMIT".getBytes();
-  private static final byte[] BURN_ALN_AMOUNT = "BURN_ALN_AMOUNT".getBytes();
+  private static final byte[] BURN_TRX_AMOUNT = "BURN_TRX_AMOUNT".getBytes();
   private static final byte[] ALLOW_BLACKHOLE_OPTIMIZATION = "ALLOW_BLACKHOLE_OPTIMIZATION".getBytes();
   private static final byte[] ALLOW_NEW_RESOURCE_MODEL = "ALLOW_NEW_RESOURCE_MODEL".getBytes();
   private static final byte[] ALLOW_TVM_FREEZE = "ALLOW_TVM_FREEZE".getBytes();
@@ -404,7 +404,7 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
     try {
       this.getCreateAccountFee();
     } catch (IllegalArgumentException e) {
-      this.saveCreateAccountFee(100_000L); // 0.1ALN
+      this.saveCreateAccountFee(100_000L); // 0.1TRX
     }
 
     try {
@@ -734,9 +734,9 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
     }
 
     try {
-      this.getBurnAlnAmount();
+      this.getBurnTrxAmount();
     } catch (IllegalArgumentException e) {
-      this.saveBurnAln(0L);
+      this.saveBurnTrx(0L);
     }
 
     try {
@@ -1585,9 +1585,9 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
             () -> new IllegalArgumentException("not found TOTAL_CREATE_WITNESS_COST"));
   }
 
-  public void saveTotalStoragePool(long aln) {
+  public void saveTotalStoragePool(long trx) {
     this.put(TOTAL_STORAGE_POOL,
-        new BytesCapsule(ByteArray.fromLong(aln)));
+        new BytesCapsule(ByteArray.fromLong(trx)));
   }
 
   public long getTotalStoragePool() {
@@ -1598,9 +1598,9 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
             () -> new IllegalArgumentException("not found TOTAL_STORAGE_POOL"));
   }
 
-  public void saveTotalStorageTax(long aln) {
+  public void saveTotalStorageTax(long trx) {
     this.put(TOTAL_STORAGE_TAX,
-        new BytesCapsule(ByteArray.fromLong(aln)));
+        new BytesCapsule(ByteArray.fromLong(trx)));
   }
 
   public long getTotalStorageTax() {
@@ -2063,21 +2063,21 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
     );
   }
 
-  //The unit is aln
+  //The unit is trx
   public void addTotalNetWeight(long amount) {
     long totalNetWeight = getTotalNetWeight();
     totalNetWeight += amount;
     saveTotalNetWeight(totalNetWeight);
   }
 
-  //The unit is aln
+  //The unit is trx
   public void addTotalEnergyWeight(long amount) {
     long totalEnergyWeight = getTotalEnergyWeight();
     totalEnergyWeight += amount;
     saveTotalEnergyWeight(totalEnergyWeight);
   }
 
-  //The unit is aln
+  //The unit is trx
   public void addTotalTronPowerWeight(long amount) {
     long totalWeight = getTotalTronPowerWeight();
     totalWeight += amount;
@@ -2211,23 +2211,23 @@ public class DynamicPropertiesStore extends AloneStoreWithRevoking<BytesCapsule>
         new BytesCapsule(ByteArray.fromLong(maxFeeLimit)));
   }
 
-  public long getBurnAlnAmount() {
-    return Optional.ofNullable(getUnchecked(BURN_ALN_AMOUNT))
+  public long getBurnTrxAmount() {
+    return Optional.ofNullable(getUnchecked(BURN_TRX_AMOUNT))
         .map(BytesCapsule::getData)
         .map(ByteArray::toLong)
-        .orElseThrow(() -> new IllegalArgumentException("not found BURN_ALN_AMOUNT"));
+        .orElseThrow(() -> new IllegalArgumentException("not found BURN_TRX_AMOUNT"));
   }
 
-  public void burnAln(long amount) {
+  public void burnTrx(long amount) {
     if (amount <= 0) {
       return;
     }
-    amount += getBurnAlnAmount();
-    saveBurnAln(amount);
+    amount += getBurnTrxAmount();
+    saveBurnTrx(amount);
   }
 
-  private void saveBurnAln(long amount) {
-    this.put(BURN_ALN_AMOUNT, new BytesCapsule(ByteArray.fromLong(amount)));
+  private void saveBurnTrx(long amount) {
+    this.put(BURN_TRX_AMOUNT, new BytesCapsule(ByteArray.fromLong(amount)));
   }
 
   public boolean supportBlackHoleOptimization() {

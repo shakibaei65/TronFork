@@ -106,7 +106,7 @@ public interface Deposit {
 
   AssetIssueCapsule getAssetIssue(byte[] tokenId);
 
-  TransactionCapsule getTransaction(byte[] alnHash);
+  TransactionCapsule getTransaction(byte[] trxHash);
 
   BlockCapsule getBlock(byte[] blockHash);
 

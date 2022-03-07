@@ -12,13 +12,13 @@ import org.tron.common.utils.ByteArray;
 import org.tron.core.capsule.TransactionInfoCapsule;
 import org.tron.core.capsule.TransactionRetCapsule;
 import org.tron.core.db.TransactionStore;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.exception.BadItemException;
 import org.tron.protos.Protocol.TransactionInfo;
 
 @Slf4j(topic = "DB")
 @Component
-public class TransactionRetStore extends AloneStoreWithRevoking<TransactionRetCapsule> {
+public class TransactionRetStore extends TronStoreWithRevoking<TransactionRetCapsule> {
 
   @Autowired
   private TransactionStore transactionStore;

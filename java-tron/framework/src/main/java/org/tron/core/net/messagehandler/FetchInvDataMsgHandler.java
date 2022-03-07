@@ -20,14 +20,14 @@ import org.tron.core.capsule.PbftSignCapsule;
 import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
 import org.tron.core.net.message.MessageTypes;
 import org.tron.core.net.message.PbftCommitMessage;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.net.message.TransactionsMessage;
-import org.tron.core.net.message.AloneMessage;
+import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.Item;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.core.net.service.AdvService;
@@ -39,14 +39,14 @@ import org.tron.protos.Protocol.Transaction;
 
 @Slf4j(topic = "net")
 @Component
-public class FetchInvDataMsgHandler implements AloneMsgHandler {
+public class FetchInvDataMsgHandler implements TronMsgHandler {
 
   private volatile Cache<Long, Boolean> epochCache = CacheBuilder.newBuilder().initialCapacity(100)
       .maximumSize(1000).expireAfterWrite(1, TimeUnit.HOURS).build();
 
   private static final int MAX_SIZE = 1_000_000;
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
   @Autowired
   private SyncService syncService;
   @Autowired
@@ -55,7 +55,7 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
   private ConsensusDelegate consensusDelegate;
 
   @Override
-  public void processMessage(PeerConnection peer, AloneMessage msg) throws P2pException {
+  public void processMessage(PeerConnection peer, TronMessage msg) throws P2pException {
 
     FetchInvDataMessage fetchInvDataMsg = (FetchInvDataMessage) msg;
 
@@ -71,7 +71,7 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
       Message message = advService.getMessage(item);
       if (message == null) {
         try {
-          message = aloneNetDelegate.getData(hash, type);
+          message = tronNetDelegate.getData(hash, type);
         } catch (Exception e) {
           logger.error("Fetch item {} failed. reason: {}", item, hash, e.getMessage());
           peer.disconnect(ReasonCode.FETCH_FAIL);
@@ -104,11 +104,11 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
 
   private void sendPbftCommitMessage(PeerConnection peer, BlockCapsule blockCapsule) {
     try {
-      if (!aloneNetDelegate.allowPBFT() || peer.isSyncFinish()) {
+      if (!tronNetDelegate.allowPBFT() || peer.isSyncFinish()) {
         return;
       }
       long epoch = 0;
-      PbftSignCapsule pbftSignCapsule = aloneNetDelegate
+      PbftSignCapsule pbftSignCapsule = tronNetDelegate
           .getBlockPbftCommitData(blockCapsule.getNum());
       long maintenanceTimeInterval = consensusDelegate.getDynamicPropertiesStore()
           .getMaintenanceTimeInterval();
@@ -121,7 +121,7 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
             (blockCapsule.getTimeStamp() / maintenanceTimeInterval + 1) * maintenanceTimeInterval;
       }
       if (epochCache.getIfPresent(epoch) == null) {
-        PbftSignCapsule srl = aloneNetDelegate.getSRLPbftCommitData(epoch);
+        PbftSignCapsule srl = tronNetDelegate.getSRLPbftCommitData(epoch);
         if (srl != null) {
           epochCache.put(epoch, true);
           peer.sendMessage(new PbftCommitMessage(srl));
@@ -135,15 +135,15 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
   private void check(PeerConnection peer, FetchInvDataMessage fetchInvDataMsg) throws P2pException {
     MessageTypes type = fetchInvDataMsg.getInvMessageType();
 
-    if (type == MessageTypes.ALN) {
+    if (type == MessageTypes.TRX) {
       for (Sha256Hash hash : fetchInvDataMsg.getHashList()) {
-        if (peer.getAdvInvSpread().getIfPresent(new Item(hash, InventoryType.ALN)) == null) {
+        if (peer.getAdvInvSpread().getIfPresent(new Item(hash, InventoryType.TRX)) == null) {
           throw new P2pException(TypeEnum.BAD_MESSAGE, "not spread inv: {}" + hash);
         }
       }
-      int fetchCount = peer.getNodeStatistics().messageStatistics.aloneInAlnFetchInvDataElement
+      int fetchCount = peer.getNodeStatistics().messageStatistics.tronInTrxFetchInvDataElement
           .getCount(10);
-      int maxCount = advService.getAlnCount().getCount(60);
+      int maxCount = advService.getTrxCount().getCount(60);
       if (fetchCount > maxCount) {
         logger.error("maxCount: " + maxCount + ", fetchCount: " + fetchCount);
       }
@@ -156,9 +156,9 @@ public class FetchInvDataMsgHandler implements AloneMsgHandler {
         }
       }
       if (isAdv) {
-        MessageCount aloneOutAdvBlock = peer.getNodeStatistics().messageStatistics.aloneOutAdvBlock;
-        aloneOutAdvBlock.add(fetchInvDataMsg.getHashList().size());
-        int outBlockCountIn1min = aloneOutAdvBlock.getCount(60);
+        MessageCount tronOutAdvBlock = peer.getNodeStatistics().messageStatistics.tronOutAdvBlock;
+        tronOutAdvBlock.add(fetchInvDataMsg.getHashList().size());
+        int outBlockCountIn1min = tronOutAdvBlock.getCount(60);
         int producedBlockIn2min = 120_000 / BLOCK_PRODUCED_INTERVAL;
         if (outBlockCountIn1min > producedBlockIn2min) {
           logger.error("producedBlockIn2min: " + producedBlockIn2min + ", outBlockCountIn1min: "

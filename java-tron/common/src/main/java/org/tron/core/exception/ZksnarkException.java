@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class ZksnarkException extends AloneException {
+public class ZksnarkException extends TronException {
 
   public ZksnarkException() {
     super();

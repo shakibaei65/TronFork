@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.capsule;
 
 import com.google.common.primitives.Longs;
@@ -13,7 +28,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.bouncycastle.util.encoders.Hex;
+import org.tron.common.bloom.Bloom;
 import org.tron.common.crypto.SignInterface;
 import org.tron.common.crypto.SignUtils;
 import org.tron.common.parameter.CommonParameter;
@@ -43,6 +58,9 @@ public class BlockCapsule implements ProtoCapsule<Block> {
   private List<TransactionCapsule> transactions = new ArrayList<>();
   private StringBuilder toStringBuff = new StringBuilder();
   private boolean isSwitch;
+  @Getter
+  @Setter
+  private Bloom bloom;
 
   public boolean isSwitch() {
     return isSwitch;
@@ -91,7 +109,7 @@ public class BlockCapsule implements ProtoCapsule<Block> {
 
     // block
     Block.Builder blockBuild = Block.newBuilder();
-    transactionList.forEach(aln -> blockBuild.addTransactions(aln));
+    transactionList.forEach(trx -> blockBuild.addTransactions(trx));
     this.block = blockBuild.setBlockHeader(blockHeader).build();
     initTxs();
   }
@@ -120,9 +138,9 @@ public class BlockCapsule implements ProtoCapsule<Block> {
     }
   }
 
-  public void addTransaction(TransactionCapsule pendingAln) {
-    this.block = this.block.toBuilder().addTransactions(pendingAln.getInstance()).build();
-    getTransactions().add(pendingAln);
+  public void addTransaction(TransactionCapsule pendingTrx) {
+    this.block = this.block.toBuilder().addTransactions(pendingTrx.getInstance()).build();
+    getTransactions().add(pendingTrx);
   }
 
   public List<TransactionCapsule> getTransactions() {
@@ -131,7 +149,7 @@ public class BlockCapsule implements ProtoCapsule<Block> {
 
   private void initTxs() {
     transactions = this.block.getTransactionsList().stream()
-        .map(aln -> new TransactionCapsule(aln))
+        .map(trx -> new TransactionCapsule(trx))
         .collect(Collectors.toList());
   }
 

@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class SignatureFormatException extends AloneException {
+public class SignatureFormatException extends TronException {
 
   public SignatureFormatException() {
     super();

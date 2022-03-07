@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.utils;
 
 import static org.tron.common.crypto.Hash.sha3omit12;
@@ -166,32 +181,32 @@ public class TransactionUtil {
 
   public static TransactionCapsule getTransactionSign(TransactionSign transactionSign) {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
-    TransactionCapsule aln = new TransactionCapsule(transactionSign.getTransaction());
-    aln.sign(privateKey);
-    return aln;
+    TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
+    trx.sign(privateKey);
+    return trx;
   }
 
   public TransactionCapsule addSign(TransactionSign transactionSign)
       throws PermissionException, SignatureException, SignatureFormatException {
     byte[] privateKey = transactionSign.getPrivateKey().toByteArray();
-    TransactionCapsule aln = new TransactionCapsule(transactionSign.getTransaction());
-    aln.addSign(privateKey, chainBaseManager.getAccountStore());
-    return aln;
+    TransactionCapsule trx = new TransactionCapsule(transactionSign.getTransaction());
+    trx.addSign(privateKey, chainBaseManager.getAccountStore());
+    return trx;
   }
 
-  public TransactionSignWeight getTransactionSignWeight(Transaction aln) {
+  public TransactionSignWeight getTransactionSignWeight(Transaction trx) {
     TransactionSignWeight.Builder tswBuilder = TransactionSignWeight.newBuilder();
-    TransactionExtention.Builder alnExBuilder = TransactionExtention.newBuilder();
-    alnExBuilder.setTransaction(aln);
-    alnExBuilder.setTxid(ByteString.copyFrom(Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), aln.getRawData().toByteArray())));
+    TransactionExtention.Builder trxExBuilder = TransactionExtention.newBuilder();
+    trxExBuilder.setTransaction(trx);
+    trxExBuilder.setTxid(ByteString.copyFrom(Sha256Hash.hash(CommonParameter
+        .getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())));
     Return.Builder retBuilder = Return.newBuilder();
     retBuilder.setResult(true).setCode(response_code.SUCCESS);
-    alnExBuilder.setResult(retBuilder);
-    tswBuilder.setTransaction(alnExBuilder);
+    trxExBuilder.setResult(retBuilder);
+    tswBuilder.setTransaction(trxExBuilder);
     Result.Builder resultBuilder = Result.newBuilder();
     try {
-      Contract contract = aln.getRawData().getContract(0);
+      Contract contract = trx.getRawData().getContract(0);
       byte[] owner = TransactionCapsule.getOwner(contract);
       AccountCapsule account = chainBaseManager.getAccountStore().get(owner);
       if (Objects.isNull(account)) {
@@ -212,11 +227,11 @@ public class TransactionUtil {
         }
       }
       tswBuilder.setPermission(permission);
-      if (aln.getSignatureCount() > 0) {
+      if (trx.getSignatureCount() > 0) {
         List<ByteString> approveList = new ArrayList<ByteString>();
-        long currentWeight = TransactionCapsule.checkWeight(permission, aln.getSignatureList(),
+        long currentWeight = TransactionCapsule.checkWeight(permission, trx.getSignatureList(),
             Sha256Hash.hash(CommonParameter.getInstance()
-                .isECKeyCryptoEngine(), aln.getRawData().toByteArray()), approveList);
+                .isECKeyCryptoEngine(), trx.getRawData().toByteArray()), approveList);
         tswBuilder.addAllApprovedList(approveList);
         tswBuilder.setCurrentWeight(currentWeight);
       }

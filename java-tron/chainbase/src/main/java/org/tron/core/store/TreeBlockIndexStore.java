@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.capsule.BytesCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.exception.ItemNotFoundException;
 
 @Component
-public class TreeBlockIndexStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class TreeBlockIndexStore extends TronStoreWithRevoking<BytesCapsule> {
 
 
   @Autowired

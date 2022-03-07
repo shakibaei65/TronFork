@@ -2,12 +2,12 @@ package org.tron.core.net.message;
 
 import org.tron.protos.Protocol;
 
-public class ItemNotFound extends AloneMessage {
+public class ItemNotFound extends TronMessage {
 
   private org.tron.protos.Protocol.Items notFound;
 
   /**
-   * means can not find this block or aln.
+   * means can not find this block or trx.
    */
   public ItemNotFound() {
     Protocol.Items.Builder itemsBuilder = Protocol.Items.newBuilder();

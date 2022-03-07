@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 import org.tron.common.utils.ByteArray;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BytesCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 import java.math.BigInteger;
 
 @Slf4j
 @Component
-public class DelegationStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class DelegationStore extends TronStoreWithRevoking<BytesCapsule> {
 
   public static final long REMARK = -1L;
   public static final int DEFAULT_BROKERAGE = 20;

@@ -18,14 +18,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tron.common.overlay.server.Channel.AloneState;
+import org.tron.common.overlay.server.Channel.TronState;
 import org.tron.common.utils.Pair;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.config.Parameter.NetConstants;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.message.BlockMessage;
 import org.tron.core.net.message.FetchInvDataMessage;
 import org.tron.core.net.message.SyncBlockChainMessage;
@@ -39,7 +39,7 @@ import org.tron.protos.Protocol.ReasonCode;
 public class SyncService {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   @Autowired
   private PbftDataSyncHandler pbftDataSyncHandler;
@@ -92,11 +92,11 @@ public class SyncService {
   }
 
   public void startSync(PeerConnection peer) {
-    peer.setAloneState(AloneState.SYNCING);
+    peer.setTronState(TronState.SYNCING);
     peer.setNeedSyncFromPeer(true);
     peer.getSyncBlockToFetch().clear();
     peer.setRemainNum(0);
-    peer.setBlockBothHave(aloneNetDelegate.getGenesisBlockId());
+    peer.setBlockBothHave(tronNetDelegate.getGenesisBlockId());
     syncNext(peer);
   }
 
@@ -147,18 +147,18 @@ public class SyncService {
     List<BlockId> blockIds = new ArrayList<>(peer.getSyncBlockToFetch());
     List<BlockId> forkList = new LinkedList<>();
     LinkedList<BlockId> summary = new LinkedList<>();
-    long syncBeginNumber = aloneNetDelegate.getSyncBeginNumber();
+    long syncBeginNumber = tronNetDelegate.getSyncBeginNumber();
     long low = syncBeginNumber < 0 ? 0 : syncBeginNumber;
     long highNoFork;
     long high;
 
     if (beginBlockId.getNum() == 0) {
-      highNoFork = high = aloneNetDelegate.getHeadBlockId().getNum();
+      highNoFork = high = tronNetDelegate.getHeadBlockId().getNum();
     } else {
-      if (aloneNetDelegate.containBlockInMainChain(beginBlockId)) {
+      if (tronNetDelegate.containBlockInMainChain(beginBlockId)) {
         highNoFork = high = beginBlockId.getNum();
       } else {
-        forkList = aloneNetDelegate.getBlockChainHashesOnFork(beginBlockId);
+        forkList = tronNetDelegate.getBlockChainHashesOnFork(beginBlockId);
         if (forkList.isEmpty()) {
           throw new P2pException(TypeEnum.SYNC_FAILED,
               "can't find blockId: " + beginBlockId.getString());
@@ -181,7 +181,7 @@ public class SyncService {
 
     while (low <= realHigh) {
       if (low <= highNoFork) {
-        summary.offer(aloneNetDelegate.getBlockIdByNum(low));
+        summary.offer(tronNetDelegate.getBlockIdByNum(low));
       } else if (low <= high) {
         summary.offer(forkList.get((int) (low - highNoFork - 1)));
       } else {
@@ -196,7 +196,7 @@ public class SyncService {
   private void startFetchSyncBlock() {
     HashMap<PeerConnection, List<BlockId>> send = new HashMap<>();
 
-    aloneNetDelegate.getActivePeer().stream()
+    tronNetDelegate.getActivePeer().stream()
         .filter(peer -> peer.isNeedSyncFromPeer() && peer.isIdle())
         .forEach(peer -> {
           if (!send.containsKey(peer)) {
@@ -234,7 +234,7 @@ public class SyncService {
 
       isProcessed[0] = false;
 
-      synchronized (aloneNetDelegate.getBlockLock()) {
+      synchronized (tronNetDelegate.getBlockLock()) {
         blockWaitToProcess.forEach((msg, peerConnection) -> {
           if (peerConnection.isDisconnect()) {
             blockWaitToProcess.remove(msg);
@@ -242,7 +242,7 @@ public class SyncService {
             return;
           }
           final boolean[] isFound = {false};
-          aloneNetDelegate.getActivePeer().stream()
+          tronNetDelegate.getActivePeer().stream()
               .filter(peer -> msg.getBlockId().equals(peer.getSyncBlockToFetch().peek()))
               .forEach(peer -> {
                 peer.getSyncBlockToFetch().pop();
@@ -263,14 +263,14 @@ public class SyncService {
     boolean flag = true;
     BlockId blockId = block.getBlockId();
     try {
-      aloneNetDelegate.validSignature(block);
-      aloneNetDelegate.processBlock(block, true);
+      tronNetDelegate.validSignature(block);
+      tronNetDelegate.processBlock(block, true);
       pbftDataSyncHandler.processPBFTCommitData(block);
     } catch (Exception e) {
       logger.error("Process sync block {} failed.", blockId.getString(), e);
       flag = false;
     }
-    for (PeerConnection peer : aloneNetDelegate.getActivePeer()) {
+    for (PeerConnection peer : tronNetDelegate.getActivePeer()) {
       if (peer.getSyncBlockInProcess().remove(blockId)) {
         if (flag) {
           peer.setBlockBothHave(blockId);

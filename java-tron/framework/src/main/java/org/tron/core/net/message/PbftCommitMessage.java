@@ -3,7 +3,7 @@ package org.tron.core.net.message;
 import org.tron.core.capsule.PbftSignCapsule;
 import org.tron.protos.Protocol.PBFTCommitResult;
 
-public class PbftCommitMessage extends AloneMessage {
+public class PbftCommitMessage extends TronMessage {
 
   private PbftSignCapsule pbftSignCapsule;
 

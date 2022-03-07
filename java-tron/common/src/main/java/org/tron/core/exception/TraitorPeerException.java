@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class TraitorPeerException extends AloneException {
+public class TraitorPeerException extends TronException {
 
   public TraitorPeerException() {
     super();

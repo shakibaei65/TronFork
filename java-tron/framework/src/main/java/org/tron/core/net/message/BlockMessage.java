@@ -6,7 +6,7 @@ import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.TransactionCapsule;
 
-public class BlockMessage extends AloneMessage {
+public class BlockMessage extends TronMessage {
 
   private BlockCapsule block;
 
@@ -57,6 +57,6 @@ public class BlockMessage extends AloneMessage {
   @Override
   public String toString() {
     return new StringBuilder().append(super.toString()).append(block.getBlockId().getString())
-        .append(", aln size: ").append(block.getTransactions().size()).append("\n").toString();
+        .append(", trx size: ").append(block.getTransactions().size()).append("\n").toString();
   }
 }

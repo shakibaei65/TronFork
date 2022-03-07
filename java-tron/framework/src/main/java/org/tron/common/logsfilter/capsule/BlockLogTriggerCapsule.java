@@ -18,8 +18,8 @@ public class BlockLogTriggerCapsule extends TriggerCapsule {
     blockLogTrigger.setTimeStamp(block.getTimeStamp());
     blockLogTrigger.setBlockNumber(block.getNum());
     blockLogTrigger.setTransactionSize(block.getTransactions().size());
-    block.getTransactions().forEach(aln ->
-        blockLogTrigger.getTransactionList().add(aln.getTransactionId().toString())
+    block.getTransactions().forEach(trx ->
+        blockLogTrigger.getTransactionList().add(trx.getTransactionId().toString())
     );
   }
 

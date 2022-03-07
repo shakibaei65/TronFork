@@ -13,7 +13,7 @@ import org.tron.core.capsule.AccountAssetCapsule;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.utils.AssetUtil;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.db.accountstate.AccountStateCallBackUtils;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountAsset;
@@ -27,7 +27,7 @@ import java.util.OptionalLong;
 
 @Slf4j(topic = "DB")
 @Component
-public class AccountStore extends AloneStoreWithRevoking<AccountCapsule> {
+public class AccountStore extends TronStoreWithRevoking<AccountCapsule> {
 
   private static Map<String, byte[]> assertsAddress = new HashMap<>(); // key = name , value = address
 
@@ -125,14 +125,14 @@ public class AccountStore extends AloneStoreWithRevoking<AccountCapsule> {
   }
 
   /**
-   * Max ALN account.
+   * Max TRX account.
    */
   public AccountCapsule getSun() {
     return getUnchecked(assertsAddress.get("Sun"));
   }
 
   /**
-   * Min ALN account.
+   * Min TRX account.
    */
   public AccountCapsule getBlackhole() {
     return getUnchecked(assertsAddress.get("Blackhole"));

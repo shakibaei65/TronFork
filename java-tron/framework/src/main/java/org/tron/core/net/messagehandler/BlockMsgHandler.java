@@ -13,9 +13,9 @@ import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.message.BlockMessage;
-import org.tron.core.net.message.AloneMessage;
+import org.tron.core.net.message.TronMessage;
 import org.tron.core.net.peer.Item;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.core.net.service.AdvService;
@@ -25,10 +25,10 @@ import org.tron.protos.Protocol.Inventory.InventoryType;
 
 @Slf4j(topic = "net")
 @Component
-public class BlockMsgHandler implements AloneMsgHandler {
+public class BlockMsgHandler implements TronMsgHandler {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   @Autowired
   private AdvService advService;
@@ -44,7 +44,7 @@ public class BlockMsgHandler implements AloneMsgHandler {
   private boolean fastForward = Args.getInstance().isFastForward();
 
   @Override
-  public void processMessage(PeerConnection peer, AloneMessage msg) throws P2pException {
+  public void processMessage(PeerConnection peer, TronMessage msg) throws P2pException {
 
     BlockMessage blockMessage = (BlockMessage) msg;
     BlockId blockId = blockMessage.getBlockId();
@@ -59,7 +59,7 @@ public class BlockMsgHandler implements AloneMsgHandler {
     } else {
       Long time = peer.getAdvInvRequest().remove(new Item(blockId, InventoryType.BLOCK));
       long now = System.currentTimeMillis();
-      long interval = blockId.getNum() - aloneNetDelegate.getHeadBlockId().getNum();
+      long interval = blockId.getNum() - tronNetDelegate.getHeadBlockId().getNum();
       processBlock(peer, blockMessage.getBlockCapsule());
       logger.info(
           "Receive block/interval {}/{} from {} fetch/delay {}/{}ms, "
@@ -93,48 +93,33 @@ public class BlockMsgHandler implements AloneMsgHandler {
 
   private void processBlock(PeerConnection peer, BlockCapsule block) throws P2pException {
     BlockId blockId = block.getBlockId();
-    if (!aloneNetDelegate.containBlock(block.getParentBlockId())) {
+    if (!tronNetDelegate.containBlock(block.getParentBlockId())) {
       logger.warn("Get unlink block {} from {}, head is {}.", blockId.getString(),
-          peer.getInetAddress(), aloneNetDelegate.getHeadBlockId().getString());
+          peer.getInetAddress(), tronNetDelegate.getHeadBlockId().getString());
       syncService.startSync(peer);
       return;
     }
 
-    Item item = new Item(blockId, InventoryType.BLOCK);
-    if (fastForward || peer.isFastForwardPeer()) {
-      peer.getAdvInvReceive().put(item, System.currentTimeMillis());
-      advService.addInvToCache(item);
-    }
-
-    long headNum = aloneNetDelegate.getHeadBlockId().getNum();
+    long headNum = tronNetDelegate.getHeadBlockId().getNum();
     if (block.getNum() < headNum) {
       logger.warn("Receive a low block {}, head {}", blockId.getString(), headNum);
       return;
     }
 
-    boolean flag = aloneNetDelegate.validBlock(block);
+    boolean flag = tronNetDelegate.validBlock(block);
     if (flag) {
-      if (fastForward) {
-        advService.fastForward(new BlockMessage(block));
-        aloneNetDelegate.trustNode(peer);
-      } else {
-        advService.broadcast(new BlockMessage(block));
-      }
+      advService.broadcast(new BlockMessage(block));
     }
 
     try {
-      aloneNetDelegate.processBlock(block, false);
+      tronNetDelegate.processBlock(block, false);
       if (!flag) {
-        if (fastForward) {
-          advService.fastForward(new BlockMessage(block));
-        } else {
-          advService.broadcast(new BlockMessage(block));
-        }
+        advService.broadcast(new BlockMessage(block));
       }
 
       witnessProductBlockService.validWitnessProductTwoBlock(block);
 
-      aloneNetDelegate.getActivePeer().forEach(p -> {
+      tronNetDelegate.getActivePeer().forEach(p -> {
         if (p.getAdvInvReceive().getIfPresent(blockId) != null) {
           p.setBlockBothHave(blockId);
         }

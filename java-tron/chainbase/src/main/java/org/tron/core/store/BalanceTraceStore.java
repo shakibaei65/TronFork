@@ -22,7 +22,7 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.core.capsule.BlockBalanceTraceCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.TransactionCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.exception.BadItemException;
 import org.tron.protos.contract.BalanceContract;
 import org.tron.protos.contract.BalanceContract.TransactionBalanceTrace;
@@ -32,7 +32,7 @@ import java.util.Objects;
 
 @Component
 @Slf4j(topic = "DB")
-public class BalanceTraceStore extends AloneStoreWithRevoking<BlockBalanceTraceCapsule>  {
+public class BalanceTraceStore extends TronStoreWithRevoking<BlockBalanceTraceCapsule>  {
 
   @Getter
   private BlockCapsule.BlockId currentBlockId;

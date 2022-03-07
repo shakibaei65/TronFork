@@ -22,11 +22,12 @@ import static org.tron.common.utils.Commons.getAssetIssueStoreFinal;
 import static org.tron.common.utils.Commons.getExchangeStoreFinal;
 import static org.tron.common.utils.WalletUtil.isConstant;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 import static org.tron.core.config.Parameter.DatabaseConstants.EXCHANGE_COUNT_LIMIT_MAX;
 import static org.tron.core.config.Parameter.DatabaseConstants.MARKET_COUNT_LIMIT_MAX;
 import static org.tron.core.config.Parameter.DatabaseConstants.PROPOSAL_COUNT_LIMIT_MAX;
 import static org.tron.core.services.jsonrpc.JsonRpcApiUtil.parseEnergyFee;
+import static org.tron.core.services.jsonrpc.TronJsonRpcImpl.EARLIEST_STR;
 
 import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
@@ -173,8 +174,8 @@ import org.tron.core.exception.TransactionExpirationException;
 import org.tron.core.exception.VMIllegalException;
 import org.tron.core.exception.ValidateSignatureException;
 import org.tron.core.exception.ZksnarkException;
-import org.tron.core.net.AloneNetDelegate;
-import org.tron.core.net.AloneNetService;
+import org.tron.core.net.TronNetDelegate;
+import org.tron.core.net.TronNetService;
 import org.tron.core.net.message.TransactionMessage;
 import org.tron.core.store.AccountIdIndexStore;
 import org.tron.core.store.AccountStore;
@@ -253,9 +254,9 @@ public class Wallet {
   @Getter
   private final SignInterface cryptoEngine;
   @Autowired
-  private AloneNetService aloneNetService;
+  private TronNetService tronNetService;
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
   @Autowired
   private Manager dbManager;
   @Autowired
@@ -267,7 +268,7 @@ public class Wallet {
   @Autowired
   private NodeManager nodeManager;
   private int minEffectiveConnection = Args.getInstance().getMinEffectiveConnection();
-  private boolean alnCacheEnable = Args.getInstance().isAlnCacheEnable();
+  private boolean trxCacheEnable = Args.getInstance().isTrxCacheEnable();
   public static final String CONTRACT_VALIDATE_EXCEPTION = "ContractValidateException: {}";
   public static final String CONTRACT_VALIDATE_ERROR = "Contract validate error : ";
 
@@ -391,17 +392,17 @@ public class Wallet {
     return new TransactionCapsule(contract, accountStore).getInstance();
   }
 
-  private void setTransaction(TransactionCapsule aln) {
+  private void setTransaction(TransactionCapsule trx) {
     try {
       BlockId blockId = chainBaseManager.getHeadBlockId();
-      if ("solid".equals(Args.getInstance().getAlnReferenceBlock())) {
+      if ("solid".equals(Args.getInstance().getTrxReferenceBlock())) {
         blockId = chainBaseManager.getSolidBlockId();
       }
-      aln.setReference(blockId.getNum(), blockId.getBytes());
+      trx.setReference(blockId.getNum(), blockId.getBytes());
       long expiration = chainBaseManager.getHeadBlockTimeStamp() + Args.getInstance()
-          .getAlnExpirationTimeInMilliseconds();
-      aln.setExpiration(expiration);
-      aln.setTimestamp();
+          .getTrxExpirationTimeInMilliseconds();
+      trx.setExpiration(expiration);
+      trx.setTimestamp();
     } catch (Exception e) {
       logger.error("Create transaction capsule failed.", e);
     }
@@ -411,13 +412,13 @@ public class Wallet {
       com.google.protobuf.Message message,
       ContractType contractType,
       long timeout) {
-    TransactionCapsule aln = new TransactionCapsule(message, contractType);
+    TransactionCapsule trx = new TransactionCapsule(message, contractType);
     try {
       BlockId blockId = chainBaseManager.getHeadBlockId();
-      if ("solid".equals(Args.getInstance().getAlnReferenceBlock())) {
+      if ("solid".equals(Args.getInstance().getTrxReferenceBlock())) {
         blockId = chainBaseManager.getSolidBlockId();
       }
-      aln.setReference(blockId.getNum(), blockId.getBytes());
+      trx.setReference(blockId.getNum(), blockId.getBytes());
 
       long expiration;
       if (timeout > 0) {
@@ -426,14 +427,14 @@ public class Wallet {
       } else {
         expiration =
             chainBaseManager.getHeadBlockTimeStamp() + Args.getInstance()
-                .getAlnExpirationTimeInMilliseconds();
+                .getTrxExpirationTimeInMilliseconds();
       }
-      aln.setExpiration(expiration);
-      aln.setTimestamp();
+      trx.setExpiration(expiration);
+      trx.setTimestamp();
     } catch (Exception e) {
       logger.error("Create transaction capsule failed.", e);
     }
-    return aln;
+    return trx;
   }
 
   public TransactionCapsule createTransactionCapsuleWithoutValidate(
@@ -451,10 +452,10 @@ public class Wallet {
 
   public TransactionCapsule createTransactionCapsule(com.google.protobuf.Message message,
       ContractType contractType) throws ContractValidateException {
-    TransactionCapsule aln = new TransactionCapsule(message, contractType);
+    TransactionCapsule trx = new TransactionCapsule(message, contractType);
     if (contractType != ContractType.CreateSmartContract
         && contractType != ContractType.TriggerSmartContract) {
-      List<Actuator> actList = ActuatorFactory.createActuator(aln, chainBaseManager);
+      List<Actuator> actList = ActuatorFactory.createActuator(trx, chainBaseManager);
       for (Actuator act : actList) {
         act.validate();
       }
@@ -463,14 +464,14 @@ public class Wallet {
     if (contractType == ContractType.CreateSmartContract) {
 
       CreateSmartContract contract = ContractCapsule
-          .getSmartContractFromTransaction(aln.getInstance());
+          .getSmartContractFromTransaction(trx.getInstance());
       long percent = contract.getNewContract().getConsumeUserResourcePercent();
       if (percent < 0 || percent > 100) {
         throw new ContractValidateException("percent must be >= 0 and <= 100");
       }
     }
-    setTransaction(aln);
-    return aln;
+    setTransaction(trx);
+    return trx;
   }
 
   /**
@@ -478,20 +479,20 @@ public class Wallet {
    */
   public GrpcAPI.Return broadcastTransaction(Transaction signedTransaction) {
     GrpcAPI.Return.Builder builder = GrpcAPI.Return.newBuilder();
-    TransactionCapsule aln = new TransactionCapsule(signedTransaction);
-    aln.setTime(System.currentTimeMillis());
-    Sha256Hash txID = aln.getTransactionId();
+    TransactionCapsule trx = new TransactionCapsule(signedTransaction);
+    trx.setTime(System.currentTimeMillis());
+    Sha256Hash txID = trx.getTransactionId();
     try {
       TransactionMessage message = new TransactionMessage(signedTransaction.toByteArray());
       if (minEffectiveConnection != 0) {
-        if (aloneNetDelegate.getActivePeer().isEmpty()) {
+        if (tronNetDelegate.getActivePeer().isEmpty()) {
           logger.warn("Broadcast transaction {} has failed, no connection.", txID);
           return builder.setResult(false).setCode(response_code.NO_CONNECTION)
               .setMessage(ByteString.copyFromUtf8("No connection."))
               .build();
         }
 
-        int count = (int) aloneNetDelegate.getActivePeer().stream()
+        int count = (int) tronNetDelegate.getActivePeer().stream()
             .filter(p -> !p.isNeedSyncFromUs() && !p.isNeedSyncFromPeer())
             .count();
 
@@ -511,7 +512,7 @@ public class Wallet {
             .setMessage(ByteString.copyFromUtf8("Server busy.")).build();
       }
 
-      if (alnCacheEnable) {
+      if (trxCacheEnable) {
         if (dbManager.getTransactionIdCache().getIfPresent(txID) != null) {
           logger.warn("Broadcast transaction {} has failed, it already exists.", txID);
           return builder.setResult(false).setCode(response_code.DUP_TRANSACTION_ERROR)
@@ -522,11 +523,11 @@ public class Wallet {
       }
 
       if (chainBaseManager.getDynamicPropertiesStore().supportVM()) {
-        aln.resetResult();
+        trx.resetResult();
       }
-      dbManager.pushTransaction(aln);
-      int num = aloneNetService.fastBroadcastTransaction(message);
-      if (num == 0) {
+      dbManager.pushTransaction(trx);
+      int num = tronNetService.fastBroadcastTransaction(message);
+      if (num == 0 && minEffectiveConnection != 0) {
         return builder.setResult(false).setCode(response_code.NOT_ENOUGH_EFFECTIVE_CONNECTION)
             .setMessage(ByteString.copyFromUtf8("P2P broadcast failed.")).build();
       } else {
@@ -581,31 +582,31 @@ public class Wallet {
     }
   }
 
-  public TransactionApprovedList getTransactionApprovedList(Transaction aln) {
+  public TransactionApprovedList getTransactionApprovedList(Transaction trx) {
     TransactionApprovedList.Builder tswBuilder = TransactionApprovedList.newBuilder();
-    TransactionExtention.Builder alnExBuilder = TransactionExtention.newBuilder();
-    alnExBuilder.setTransaction(aln);
-    alnExBuilder.setTxid(ByteString.copyFrom(Sha256Hash.hash(CommonParameter
-        .getInstance().isECKeyCryptoEngine(), aln.getRawData().toByteArray())));
+    TransactionExtention.Builder trxExBuilder = TransactionExtention.newBuilder();
+    trxExBuilder.setTransaction(trx);
+    trxExBuilder.setTxid(ByteString.copyFrom(Sha256Hash.hash(CommonParameter
+        .getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray())));
     Return.Builder retBuilder = Return.newBuilder();
     retBuilder.setResult(true).setCode(response_code.SUCCESS);
-    alnExBuilder.setResult(retBuilder);
-    tswBuilder.setTransaction(alnExBuilder);
+    trxExBuilder.setResult(retBuilder);
+    tswBuilder.setTransaction(trxExBuilder);
     TransactionApprovedList.Result.Builder resultBuilder = TransactionApprovedList.Result
         .newBuilder();
     try {
-      Contract contract = aln.getRawData().getContract(0);
+      Contract contract = trx.getRawData().getContract(0);
       byte[] owner = TransactionCapsule.getOwner(contract);
       AccountCapsule account = chainBaseManager.getAccountStore().get(owner);
       if (account == null) {
         throw new PermissionException("Account does not exist!");
       }
 
-      if (aln.getSignatureCount() > 0) {
+      if (trx.getSignatureCount() > 0) {
         List<ByteString> approveList = new ArrayList<ByteString>();
         byte[] hash = Sha256Hash.hash(CommonParameter
-            .getInstance().isECKeyCryptoEngine(), aln.getRawData().toByteArray());
-        for (ByteString sig : aln.getSignatureList()) {
+            .getInstance().isECKeyCryptoEngine(), trx.getRawData().toByteArray());
+        for (ByteString sig : trx.getSignatureList()) {
           if (sig.size() < 65) {
             throw new SignatureFormatException(
                 "Signature size is " + sig.size());
@@ -685,7 +686,7 @@ public class Wallet {
   }
 
   public Block getByJsonBlockId(String id) throws JsonRpcInvalidParamsException {
-    if ("earliest".equalsIgnoreCase(id)) {
+    if (EARLIEST_STR.equalsIgnoreCase(id)) {
       return getBlockByNum(0);
     } else if ("latest".equalsIgnoreCase(id)) {
       return getNowBlock();
@@ -1219,7 +1220,7 @@ public class Wallet {
     long storageLimit = accountCapsule.getAccountResource().getStorageLimit();
     long storageUsage = accountCapsule.getAccountResource().getStorageUsage();
     long allTronPowerUsage = accountCapsule.getTronPowerUsage();
-    long allTronPower = accountCapsule.getAllTronPower() / ALN_PRECISION;
+    long allTronPower = accountCapsule.getAllTronPower() / TRX_PRECISION;
 
     Map<String, Long> assetNetLimitMap = new HashMap<>();
     Map<String, Long> allFreeAssetNetUsage = setAssetNetLimit(assetNetLimitMap, accountCapsule);
@@ -2542,17 +2543,17 @@ public class Wallet {
     return builder.build();
   }
 
-  public Transaction deployContract(TransactionCapsule alnCap) {
+  public Transaction deployContract(TransactionCapsule trxCap) {
 
     // do nothing, so can add some useful function later
-    // alnCap contract para cacheUnpackValue has value
+    // trxCap contract para cacheUnpackValue has value
 
-    return alnCap.getInstance();
+    return trxCap.getInstance();
   }
 
   public Transaction triggerContract(TriggerSmartContract
       triggerSmartContract,
-      TransactionCapsule alnCap, Builder builder,
+      TransactionCapsule trxCap, Builder builder,
       Return.Builder retBuilder)
       throws ContractValidateException, ContractExeException, HeaderNotFound, VMIllegalException {
 
@@ -2575,14 +2576,14 @@ public class Wallet {
         triggerSmartContract.getData().toByteArray());
 
     if (isConstant(abi, selector)) {
-      return callConstantContract(alnCap, builder, retBuilder);
+      return callConstantContract(trxCap, builder, retBuilder);
     } else {
-      return alnCap.getInstance();
+      return trxCap.getInstance();
     }
   }
 
   public Transaction triggerConstantContract(TriggerSmartContract triggerSmartContract,
-      TransactionCapsule alnCap, Builder builder, Return.Builder retBuilder)
+      TransactionCapsule trxCap, Builder builder, Return.Builder retBuilder)
       throws ContractValidateException, ContractExeException, HeaderNotFound, VMIllegalException {
 
     if (triggerSmartContract.getContractAddress().isEmpty()) { // deploy contract
@@ -2598,7 +2599,7 @@ public class Wallet {
       );
       deployBuilder.setCallTokenValue(triggerSmartContract.getCallTokenValue());
       deployBuilder.setTokenId(triggerSmartContract.getTokenId());
-      alnCap = createTransactionCapsule(deployBuilder.build(), ContractType.CreateSmartContract);
+      trxCap = createTransactionCapsule(deployBuilder.build(), ContractType.CreateSmartContract);
     } else { // call contract
       ContractStore contractStore = chainBaseManager.getContractStore();
       byte[] contractAddress = triggerSmartContract.getContractAddress().toByteArray();
@@ -2606,10 +2607,10 @@ public class Wallet {
         throw new ContractValidateException("Smart contract is not exist.");
       }
     }
-    return callConstantContract(alnCap, builder, retBuilder);
+    return callConstantContract(trxCap, builder, retBuilder);
   }
 
-  public Transaction callConstantContract(TransactionCapsule alnCap,
+  public Transaction callConstantContract(TransactionCapsule trxCap,
       Builder builder, Return.Builder retBuilder)
       throws ContractValidateException, ContractExeException, HeaderNotFound, VMIllegalException {
 
@@ -2626,7 +2627,7 @@ public class Wallet {
       headBlock = blockCapsuleList.get(0).getInstance();
     }
 
-    TransactionContext context = new TransactionContext(new BlockCapsule(headBlock), alnCap,
+    TransactionContext context = new TransactionContext(new BlockCapsule(headBlock), trxCap,
         StoreFactory.getInstance(), true, false);
     VMActuator vmActuator = new VMActuator(true);
 
@@ -2659,8 +2660,8 @@ public class Wallet {
       retBuilder.setMessage(ByteString.copyFromUtf8("REVERT opcode executed"))
           .build();
     }
-    alnCap.setResult(ret);
-    return alnCap.getInstance();
+    trxCap.setResult(ret);
+    return trxCap.getInstance();
   }
 
   public SmartContract getContract(GrpcAPI.BytesMessage bytesMessage) {
@@ -3438,41 +3439,41 @@ public class Wallet {
     triggerBuilder.setData(ByteString.copyFrom(input));
     TriggerSmartContract trigger = triggerBuilder.build();
 
-    TransactionExtention.Builder alnExtBuilder = TransactionExtention.newBuilder();
+    TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
     Return.Builder retBuilder = Return.newBuilder();
-    TransactionExtention alnExt;
+    TransactionExtention trxExt;
 
     try {
-      TransactionCapsule alnCap = createTransactionCapsule(trigger,
+      TransactionCapsule trxCap = createTransactionCapsule(trigger,
           ContractType.TriggerSmartContract);
-      Transaction aln = triggerConstantContract(trigger, alnCap, alnExtBuilder, retBuilder);
+      Transaction trx = triggerConstantContract(trigger, trxCap, trxExtBuilder, retBuilder);
 
       retBuilder.setResult(true).setCode(response_code.SUCCESS);
-      alnExtBuilder.setTransaction(aln);
-      alnExtBuilder.setTxid(alnCap.getTransactionId().getByteString());
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setTransaction(trx);
+      trxExtBuilder.setTxid(trxCap.getTransactionId().getByteString());
+      trxExtBuilder.setResult(retBuilder);
     } catch (ContractValidateException | VMIllegalException e) {
       retBuilder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
           .setMessage(ByteString.copyFromUtf8(CONTRACT_VALIDATE_ERROR + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
     } catch (RuntimeException e) {
       retBuilder.setResult(false).setCode(response_code.CONTRACT_EXE_ERROR)
           .setMessage(ByteString.copyFromUtf8(e.getClass() + " : " + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn("When run constant call in VM, have RuntimeException: " + e.getMessage());
     } catch (Exception e) {
       retBuilder.setResult(false).setCode(response_code.OTHER_ERROR)
           .setMessage(ByteString.copyFromUtf8(e.getClass() + " : " + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn("unknown exception caught: " + e.getMessage(), e);
     } finally {
-      alnExt = alnExtBuilder.build();
+      trxExt = trxExtBuilder.build();
     }
 
-    String code = alnExt.getResult().getCode().toString();
+    String code = trxExt.getResult().getCode().toString();
     if ("SUCCESS".equals(code)) {
-      List<ByteString> list = alnExt.getConstantResultList();
+      List<ByteString> list = trxExt.getConstantResultList();
       byte[] listBytes = new byte[0];
       for (ByteString bs : list) {
         listBytes = ByteUtil.merge(listBytes, bs.toByteArray());
@@ -3702,41 +3703,41 @@ public class Wallet {
     triggerBuilder.setData(ByteString.copyFrom(selector));
     TriggerSmartContract trigger = triggerBuilder.build();
 
-    TransactionExtention.Builder alnExtBuilder = TransactionExtention.newBuilder();
+    TransactionExtention.Builder trxExtBuilder = TransactionExtention.newBuilder();
     Return.Builder retBuilder = Return.newBuilder();
-    TransactionExtention alnExt;
+    TransactionExtention trxExt;
 
     try {
-      TransactionCapsule alnCap = createTransactionCapsule(trigger,
+      TransactionCapsule trxCap = createTransactionCapsule(trigger,
           ContractType.TriggerSmartContract);
-      Transaction aln = triggerConstantContract(trigger, alnCap, alnExtBuilder, retBuilder);
+      Transaction trx = triggerConstantContract(trigger, trxCap, trxExtBuilder, retBuilder);
 
       retBuilder.setResult(true).setCode(response_code.SUCCESS);
-      alnExtBuilder.setTransaction(aln);
-      alnExtBuilder.setTxid(alnCap.getTransactionId().getByteString());
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setTransaction(trx);
+      trxExtBuilder.setTxid(trxCap.getTransactionId().getByteString());
+      trxExtBuilder.setResult(retBuilder);
     } catch (ContractValidateException | VMIllegalException e) {
       retBuilder.setResult(false).setCode(response_code.CONTRACT_VALIDATE_ERROR)
           .setMessage(ByteString.copyFromUtf8(CONTRACT_VALIDATE_ERROR + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn(CONTRACT_VALIDATE_EXCEPTION, e.getMessage());
     } catch (RuntimeException e) {
       retBuilder.setResult(false).setCode(response_code.CONTRACT_EXE_ERROR)
           .setMessage(ByteString.copyFromUtf8(e.getClass() + " : " + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn("When run constant call in VM, have RuntimeException: " + e.getMessage());
     } catch (Exception e) {
       retBuilder.setResult(false).setCode(response_code.OTHER_ERROR)
           .setMessage(ByteString.copyFromUtf8(e.getClass() + " : " + e.getMessage()));
-      alnExtBuilder.setResult(retBuilder);
+      trxExtBuilder.setResult(retBuilder);
       logger.warn("Unknown exception caught: " + e.getMessage(), e);
     } finally {
-      alnExt = alnExtBuilder.build();
+      trxExt = trxExtBuilder.build();
     }
 
-    String code = alnExt.getResult().getCode().toString();
+    String code = trxExt.getResult().getCode().toString();
     if ("SUCCESS".equals(code)) {
-      List<ByteString> list = alnExt.getConstantResultList();
+      List<ByteString> list = trxExt.getConstantResultList();
       byte[] listBytes = new byte[0];
       for (ByteString bs : list) {
         listBytes = ByteUtil.merge(listBytes, bs.toByteArray());

@@ -11,7 +11,7 @@ import org.tron.consensus.base.Param.Miner;
 import org.tron.consensus.base.State;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.db.Manager;
-import org.tron.core.net.AloneNetService;
+import org.tron.core.net.TronNetService;
 import org.tron.core.net.message.BlockMessage;
 
 @Slf4j(topic = "consensus")
@@ -25,7 +25,7 @@ public class BlockHandleImpl implements BlockHandle {
   private BackupManager backupManager;
 
   @Autowired
-  private AloneNetService aloneNetService;
+  private TronNetService tronNetService;
 
   @Autowired
   private Consensus consensus;
@@ -50,8 +50,7 @@ public class BlockHandleImpl implements BlockHandle {
     try {
       consensus.receiveBlock(blockCapsule);
       BlockMessage blockMessage = new BlockMessage(blockCapsule);
-      aloneNetService.fastForward(blockMessage);
-      aloneNetService.broadcast(blockMessage);
+      tronNetService.broadcast(blockMessage);
       manager.pushBlock(blockCapsule);
     } catch (Exception e) {
       logger.error("Handle block {} failed.", blockCapsule.getBlockId().getString(), e);

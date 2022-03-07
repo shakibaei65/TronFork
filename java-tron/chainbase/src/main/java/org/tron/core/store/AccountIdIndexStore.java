@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BytesCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 //todo : need Compatibility test
 @Component
-public class AccountIdIndexStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class AccountIdIndexStore extends TronStoreWithRevoking<BytesCapsule> {
 
   @Autowired
   public AccountIdIndexStore(@Value("accountid-index") String dbName) {

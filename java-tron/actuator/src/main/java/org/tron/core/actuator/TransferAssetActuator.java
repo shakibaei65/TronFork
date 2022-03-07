@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.actuator;
 
 import com.google.protobuf.ByteString;
@@ -71,7 +86,7 @@ public class TransferAssetActuator extends AbstractActuator {
 
       Commons.adjustBalance(accountStore, ownerAccountCapsule, -fee);
       if (dynamicStore.supportBlackHoleOptimization()) {
-        dynamicStore.burnAln(fee);
+        dynamicStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(), fee);
       }
@@ -164,7 +179,7 @@ public class TransferAssetActuator extends AbstractActuator {
 
     AccountCapsule toAccount = accountStore.get(toAddress);
     if (toAccount != null) {
-      //after ForbidTransferToContract proposal, send aln to smartContract by actuator is not allowed.
+      //after ForbidTransferToContract proposal, send trx to smartContract by actuator is not allowed.
       if (dynamicStore.getForbidTransferToContract() == 1
           && toAccount.getType() == AccountType.Contract) {
         throw new ContractValidateException("Cannot transfer asset to smartContract.");

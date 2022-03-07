@@ -10,7 +10,7 @@ import org.tron.core.config.args.Args;
 import org.tron.core.consensus.ConsensusService;
 import org.tron.core.db.Manager;
 import org.tron.core.metrics.MetricsUtil;
-import org.tron.core.net.AloneNetService;
+import org.tron.core.net.TronNetService;
 import org.tron.program.FullNode;
 
 @Slf4j(topic = "app")
@@ -20,7 +20,7 @@ public class ApplicationImpl implements Application {
   private ServiceContainer services;
 
   @Autowired
-  private AloneNetService aloneNetService;
+  private TronNetService tronNetService;
 
   @Autowired
   private Manager dbManager;
@@ -56,7 +56,7 @@ public class ApplicationImpl implements Application {
    * start up the app.
    */
   public void startup() {
-    aloneNetService.start();
+    tronNetService.start();
     consensusService.start();
     MetricsUtil.init();
   }
@@ -64,7 +64,7 @@ public class ApplicationImpl implements Application {
   @Override
   public void shutdown() {
     logger.info("******** start to shutdown ********");
-    aloneNetService.stop();
+    tronNetService.stop();
     consensusService.stop();
     synchronized (dbManager.getRevokingStore()) {
       closeRevokingStore();
@@ -73,6 +73,7 @@ public class ApplicationImpl implements Application {
     dbManager.stopRePushThread();
     dbManager.stopRePushTriggerThread();
     EventPluginLoader.getInstance().stopPlugin();
+    dbManager.stopFilterProcessThread();
     logger.info("******** end to shutdown ********");
     FullNode.shutDownSign = true;
   }

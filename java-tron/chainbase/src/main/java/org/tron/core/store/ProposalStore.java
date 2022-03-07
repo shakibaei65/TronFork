@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.core.capsule.ProposalCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.exception.ItemNotFoundException;
 import org.tron.protos.Protocol.Proposal.State;
 
 @Component
-public class ProposalStore extends AloneStoreWithRevoking<ProposalCapsule> {
+public class ProposalStore extends TronStoreWithRevoking<ProposalCapsule> {
 
   @Autowired
   public ProposalStore(@Value("proposal") String dbName) {

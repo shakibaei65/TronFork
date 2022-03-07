@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class BadTransactionException extends AloneException {
+public class BadTransactionException extends TronException {
 
   public BadTransactionException() {
     super();

@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.capsule.utils;
 
 import com.google.protobuf.ByteString;
@@ -233,9 +248,9 @@ public class MarketUtils {
 
   /**
    * ex.
-   * for sellToken is A, buyToken is ALN.
-   * price_A_maker * sellQuantity_maker = Price_ALN * buyQuantity_maker
-   * ==> price_A_maker = Price_ALN * buyQuantity_maker/sellQuantity_maker
+   * for sellToken is A, buyToken is TRX.
+   * price_A_maker * sellQuantity_maker = Price_TRX * buyQuantity_maker
+   * ==> price_A_maker = Price_TRX * buyQuantity_maker/sellQuantity_maker
    *
    * price_A_maker_1 < price_A_maker_2
    * ==> buyQuantity_maker_1/sellQuantity_maker_1 < buyQuantity_maker_2/sellQuantity_maker_2
@@ -256,13 +271,13 @@ public class MarketUtils {
    * firstly, we should change the token pair of taker to be the same with maker
    */
   public static boolean priceMatch(MarketPrice takerPrice, MarketPrice makerPrice) {
-    // for takerPrice, buyToken is A,sellToken is ALN.
-    // price_A_taker * buyQuantity_taker = Price_ALN * sellQuantity_taker
-    // ==> price_A_taker = Price_ALN * sellQuantity_taker/buyQuantity_taker
+    // for takerPrice, buyToken is A,sellToken is TRX.
+    // price_A_taker * buyQuantity_taker = Price_TRX * sellQuantity_taker
+    // ==> price_A_taker = Price_TRX * sellQuantity_taker/buyQuantity_taker
 
     // price_A_taker must be greater or equal to price_A_maker
     // price_A_taker / price_A_maker >= 1
-    // ==> Price_ALN * sellQuantity_taker/buyQuantity_taker >= Price_ALN * buyQuantity_maker/sellQuantity_maker
+    // ==> Price_TRX * sellQuantity_taker/buyQuantity_taker >= Price_TRX * buyQuantity_maker/sellQuantity_maker
     // ==> sellQuantity_taker * sellQuantity_maker > buyQuantity_taker * buyQuantity_maker
 
     return comparePrice(takerPrice.getBuyTokenQuantity(), takerPrice.getSellTokenQuantity(),

@@ -60,10 +60,9 @@ import org.tron.protos.Protocol.AccountType;
 @Slf4j(topic = "Repository")
 public class RepositoryImpl implements Repository {
 
-  //for energycal
   private final long precision = Parameter.ChainConstant.PRECISION;
-  private final long windowSize = Parameter.ChainConstant.WINDOW_SIZE_MS /
-      BLOCK_PRODUCED_INTERVAL;
+  private final long windowSize = Parameter.ChainConstant.WINDOW_SIZE_MS
+      / BLOCK_PRODUCED_INTERVAL;
   private static final byte[] TOTAL_NET_WEIGHT = "TOTAL_NET_WEIGHT".getBytes();
   private static final byte[] TOTAL_ENERGY_WEIGHT = "TOTAL_ENERGY_WEIGHT".getBytes();
 
@@ -473,7 +472,7 @@ public class RepositoryImpl implements Repository {
 
   @Override
   public void putStorageValue(byte[] address, DataWord key, DataWord value) {
-    address = TransactionTrace.convertToAloneAddress(address);
+    address = TransactionTrace.convertToTronAddress(address);
     if (getAccount(address) == null) {
       return;
     }
@@ -490,7 +489,7 @@ public class RepositoryImpl implements Repository {
 
   @Override
   public DataWord getStorageValue(byte[] address, DataWord key) {
-    address = TransactionTrace.convertToAloneAddress(address);
+    address = TransactionTrace.convertToTronAddress(address);
     if (getAccount(address) == null) {
       return null;
     }
@@ -526,8 +525,8 @@ public class RepositoryImpl implements Repository {
     ContractCapsule contract = getContract(address);
     if (contract != null) {
       storage.setContractVersion(contract.getContractVersion());
-      if (!ByteUtil.isNullOrZeroArray(contract.getAlnHash())) {
-        storage.generateAddrHash(contract.getAlnHash());
+      if (!ByteUtil.isNullOrZeroArray(contract.getTrxHash())) {
+        storage.generateAddrHash(contract.getTrxHash());
       }
     }
     return storage;
@@ -865,7 +864,7 @@ public class RepositoryImpl implements Repository {
     return account;
   }
 
-  //The unit is aln
+  //The unit is trx
   @Override
   public void addTotalNetWeight(long amount) {
     long totalNetWeight = getTotalNetWeight();
@@ -873,7 +872,7 @@ public class RepositoryImpl implements Repository {
     saveTotalNetWeight(totalNetWeight);
   }
 
-  //The unit is aln
+  //The unit is trx
   @Override
   public void addTotalEnergyWeight(long amount) {
     long totalEnergyWeight = getTotalEnergyWeight();

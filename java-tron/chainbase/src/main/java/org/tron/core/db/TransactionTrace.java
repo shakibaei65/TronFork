@@ -1,7 +1,7 @@
 package org.tron.core.db;
 
-import static org.tron.common.runtime.InternalTransaction.AlnType.ALN_CONTRACT_CALL_TYPE;
-import static org.tron.common.runtime.InternalTransaction.AlnType.ALN_CONTRACT_CREATION_TYPE;
+import static org.tron.common.runtime.InternalTransaction.TrxType.TRX_CONTRACT_CALL_TYPE;
+import static org.tron.common.runtime.InternalTransaction.TrxType.TRX_CONTRACT_CREATION_TYPE;
 
 import java.util.Objects;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Hex;
 import org.springframework.util.StringUtils;
-import org.tron.common.runtime.InternalTransaction.AlnType;
+import org.tron.common.runtime.InternalTransaction.TrxType;
 import org.tron.common.runtime.ProgramResult;
 import org.tron.common.runtime.Runtime;
 import org.tron.common.runtime.vm.DataWord;
@@ -44,7 +44,7 @@ import org.tron.protos.contract.SmartContractOuterClass.TriggerSmartContract;
 @Slf4j(topic = "TransactionTrace")
 public class TransactionTrace {
 
-  private TransactionCapsule aln;
+  private TransactionCapsule trx;
 
   private ReceiptCapsule receipt;
 
@@ -62,7 +62,7 @@ public class TransactionTrace {
 
   private EnergyProcessor energyProcessor;
 
-  private AlnType alnType;
+  private TrxType trxType;
 
   private long txStartTimeInMs;
 
@@ -79,20 +79,20 @@ public class TransactionTrace {
   @Setter
   private boolean netFeeForBandwidth = true;
 
-  public TransactionTrace(TransactionCapsule aln, StoreFactory storeFactory,
+  public TransactionTrace(TransactionCapsule trx, StoreFactory storeFactory,
       Runtime runtime) {
-    this.aln = aln;
-    Transaction.Contract.ContractType contractType = this.aln.getInstance().getRawData()
+    this.trx = trx;
+    Transaction.Contract.ContractType contractType = this.trx.getInstance().getRawData()
         .getContract(0).getType();
     switch (contractType.getNumber()) {
       case ContractType.TriggerSmartContract_VALUE:
-        alnType = ALN_CONTRACT_CALL_TYPE;
+        trxType = TRX_CONTRACT_CALL_TYPE;
         break;
       case ContractType.CreateSmartContract_VALUE:
-        alnType = ALN_CONTRACT_CREATION_TYPE;
+        trxType = TRX_CONTRACT_CREATION_TYPE;
         break;
       default:
-        alnType = AlnType.ALN_PRECOMPILED_TYPE;
+        trxType = TrxType.TRX_PRECOMPILED_TYPE;
     }
     this.storeFactory = storeFactory;
     this.dynamicPropertiesStore = storeFactory.getChainBaseManager().getDynamicPropertiesStore();
@@ -108,13 +108,13 @@ public class TransactionTrace {
     forkController.init(storeFactory.getChainBaseManager());
   }
 
-  public TransactionCapsule getAln() {
-    return aln;
+  public TransactionCapsule getTrx() {
+    return trx;
   }
 
   private boolean needVM() {
-    return this.alnType == ALN_CONTRACT_CALL_TYPE
-        || this.alnType == ALN_CONTRACT_CREATION_TYPE;
+    return this.trxType == TRX_CONTRACT_CALL_TYPE
+        || this.trxType == TRX_CONTRACT_CREATION_TYPE;
   }
 
   public void init(BlockCapsule blockCap) {
@@ -124,7 +124,7 @@ public class TransactionTrace {
   //pre transaction check
   public void init(BlockCapsule blockCap, boolean eventPluginLoaded) {
     txStartTimeInMs = System.currentTimeMillis();
-    transactionContext = new TransactionContext(blockCap, aln, storeFactory, false,
+    transactionContext = new TransactionContext(blockCap, trx, storeFactory, false,
         eventPluginLoaded);
   }
 
@@ -133,8 +133,8 @@ public class TransactionTrace {
       return;
     }
     TriggerSmartContract triggerContractFromTransaction = ContractCapsule
-        .getTriggerContractFromTransaction(this.getAln().getInstance());
-    if (ALN_CONTRACT_CALL_TYPE == this.alnType) {
+        .getTriggerContractFromTransaction(this.getTrx().getInstance());
+    if (TRX_CONTRACT_CALL_TYPE == this.trxType) {
       ContractCapsule contract = contractStore
           .get(triggerContractFromTransaction.getContractAddress().toByteArray());
       if (contract == null) {
@@ -181,7 +181,7 @@ public class TransactionTrace {
     runtime.execute(transactionContext);
     setBill(transactionContext.getProgramResult().getEnergyUsed());
 
-//    if (AlnType.ALN_PRECOMPILED_TYPE != alnType) {
+//    if (TrxType.TRX_PRECOMPILED_TYPE != trxType) {
 //      if (contractResult.OUT_OF_TIME
 //          .equals(receipt.getResult())) {
 //        setTimeResultType(TimeResultType.OUT_OF_TIME);
@@ -209,7 +209,7 @@ public class TransactionTrace {
     }
     if (StringUtils.isEmpty(transactionContext.getProgramResult().getRuntimeError())) {
       for (DataWord contract : transactionContext.getProgramResult().getDeleteAccounts()) {
-        deleteContract(convertToAloneAddress((contract.getLast20Bytes())));
+        deleteContract(contract.toTronAddress());
       }
     }
   }
@@ -222,14 +222,14 @@ public class TransactionTrace {
     byte[] callerAccount;
     long percent = 0;
     long originEnergyLimit = 0;
-    switch (alnType) {
-      case ALN_CONTRACT_CREATION_TYPE:
-        callerAccount = TransactionCapsule.getOwner(aln.getInstance().getRawData().getContract(0));
+    switch (trxType) {
+      case TRX_CONTRACT_CREATION_TYPE:
+        callerAccount = TransactionCapsule.getOwner(trx.getInstance().getRawData().getContract(0));
         originAccount = callerAccount;
         break;
-      case ALN_CONTRACT_CALL_TYPE:
+      case TRX_CONTRACT_CALL_TYPE:
         TriggerSmartContract callContract = ContractCapsule
-            .getTriggerContractFromTransaction(aln.getInstance());
+            .getTriggerContractFromTransaction(trx.getInstance());
         ContractCapsule contractCapsule =
             contractStore.get(callContract.getContractAddress().toByteArray());
 
@@ -260,7 +260,7 @@ public class TransactionTrace {
     if (!needVM()) {
       return false;
     }
-    return aln.getContractRet() != contractResult.OUT_OF_TIME && receipt.getResult()
+    return trx.getContractRet() != contractResult.OUT_OF_TIME && receipt.getResult()
         == contractResult.OUT_OF_TIME;
   }
 
@@ -268,13 +268,13 @@ public class TransactionTrace {
     if (!needVM()) {
       return;
     }
-    if (Objects.isNull(aln.getContractRet())) {
+    if (Objects.isNull(trx.getContractRet())) {
       throw new ReceiptCheckErrException("null resultCode");
     }
-    if (!aln.getContractRet().equals(receipt.getResult())) {
+    if (!trx.getContractRet().equals(receipt.getResult())) {
       logger.info(
           "this tx id: {}, the resultCode in received block: {}, the resultCode in self: {}",
-          Hex.toHexString(aln.getTransactionId().getBytes()), aln.getContractRet(),
+          Hex.toHexString(trx.getTransactionId().getBytes()), trx.getContractRet(),
           receipt.getResult());
       throw new ReceiptCheckErrException("Different resultCode");
     }
@@ -310,7 +310,7 @@ public class TransactionTrace {
     contractStore.delete(address);
   }
 
-  public static byte[] convertToAloneAddress(byte[] address) {
+  public static byte[] convertToTronAddress(byte[] address) {
     if (address.length == 20) {
       byte[] newAddress = new byte[21];
       byte[] temp = new byte[]{DecodeUtil.addressPreFixByte};

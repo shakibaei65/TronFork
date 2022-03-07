@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.core.metrics.MetricsKey;
 import org.tron.core.metrics.MetricsUtil;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.peer.PeerConnection;
 import org.tron.protos.Protocol;
 
@@ -20,7 +20,7 @@ import org.tron.protos.Protocol;
 public class NetMetricManager {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   /**
    * get net info.
@@ -35,9 +35,9 @@ public class NetMetricManager {
 
   private void setNetInfo(NetInfo netInfo) {
     //set connection info
-    netInfo.setConnectionCount(aloneNetDelegate.getActivePeer().size());
+    netInfo.setConnectionCount(tronNetDelegate.getActivePeer().size());
     int validConnectionCount = 0;
-    for (PeerConnection peerConnection : aloneNetDelegate.getActivePeer()) {
+    for (PeerConnection peerConnection : tronNetDelegate.getActivePeer()) {
       if (!(peerConnection.isNeedSyncFromUs() || peerConnection.isNeedSyncFromPeer())) {
         validConnectionCount++;
       }

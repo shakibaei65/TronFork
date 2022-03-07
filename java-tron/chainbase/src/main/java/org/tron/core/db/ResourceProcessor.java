@@ -34,7 +34,7 @@ abstract class ResourceProcessor {
 
   abstract void updateUsage(AccountCapsule accountCapsule);
 
-  abstract void consume(TransactionCapsule aln, TransactionTrace trace)
+  abstract void consume(TransactionCapsule trx, TransactionTrace trace)
       throws ContractValidateException, AccountResourceInsufficientException, TooBigTransactionResultException;
 
   protected long increase(long lastUsage, long usage, long lastTime, long now) {
@@ -75,7 +75,7 @@ abstract class ResourceProcessor {
       if (dynamicPropertiesStore.supportTransactionFeePool()) {
         dynamicPropertiesStore.addTransactionFeePool(fee);
       } else if (dynamicPropertiesStore.supportBlackHoleOptimization()) {
-        dynamicPropertiesStore.burnAln(fee);
+        dynamicPropertiesStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), +fee);
       }
@@ -93,7 +93,7 @@ abstract class ResourceProcessor {
       accountCapsule.setLatestOperationTime(latestOperationTime);
       Commons.adjustBalance(accountStore, accountCapsule, -fee);
       if (dynamicPropertiesStore.supportBlackHoleOptimization()) {
-        dynamicPropertiesStore.burnAln(fee);
+        dynamicPropertiesStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole().createDbKey(), +fee);
       }

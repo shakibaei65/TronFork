@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class UnReachBlockException extends AloneException {
+public class UnReachBlockException extends TronException {
 
   public UnReachBlockException() {
     super();

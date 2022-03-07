@@ -1,7 +1,7 @@
 package org.tron.core.actuator;
 
 import static org.tron.core.actuator.ActuatorConstant.ACCOUNT_EXCEPTION_STR;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
@@ -217,15 +217,15 @@ public class UnfreezeBalanceActuator extends AbstractActuator {
     switch (unfreezeBalanceContract.getResource()) {
       case BANDWIDTH:
         dynamicStore
-            .addTotalNetWeight(-unfreezeBalance / ALN_PRECISION);
+            .addTotalNetWeight(-unfreezeBalance / TRX_PRECISION);
         break;
       case ENERGY:
         dynamicStore
-            .addTotalEnergyWeight(-unfreezeBalance / ALN_PRECISION);
+            .addTotalEnergyWeight(-unfreezeBalance / TRX_PRECISION);
         break;
       case TRON_POWER:
         dynamicStore
-            .addTotalTronPowerWeight(-unfreezeBalance / ALN_PRECISION);
+            .addTotalTronPowerWeight(-unfreezeBalance / TRX_PRECISION);
         break;
       default:
         //this should never happen

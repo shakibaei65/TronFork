@@ -23,7 +23,7 @@ import org.tron.common.utils.Sha256Hash;
 import org.tron.core.Constant;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.config.Parameter.NetConstants;
-import org.tron.core.net.AloneNetDelegate;
+import org.tron.core.net.TronNetDelegate;
 import org.tron.core.net.service.AdvService;
 import org.tron.core.net.service.SyncService;
 
@@ -33,7 +33,7 @@ import org.tron.core.net.service.SyncService;
 public class PeerConnection extends Channel {
 
   @Autowired
-  private AloneNetDelegate aloneNetDelegate;
+  private TronNetDelegate tronNetDelegate;
 
   @Autowired
   private SyncService syncService;
@@ -49,7 +49,7 @@ public class PeerConnection extends Channel {
   @Getter
   private HelloMessage helloMessageSend;
 
-  private int invCacheSize = 100_000;
+  private int invCacheSize = 20_000;
 
   @Setter
   @Getter
@@ -129,7 +129,7 @@ public class PeerConnection extends Channel {
       if (peerHeadBlockNum == headBlockNum) {
         needSyncFromUs = false;
       }
-      setAloneState(AloneState.SYNC_COMPLETED);
+      setTronState(TronState.SYNC_COMPLETED);
     }
   }
 
@@ -178,7 +178,7 @@ public class PeerConnection extends Channel {
         !syncBlockToFetch.isEmpty() ? syncBlockToFetch.peek().getNum() : -1,
         syncBlockRequested.size(),
         remainNum,
-        syncChainRequested == null ? 0 : (now - syncChainRequested.getValue()) 
+        syncChainRequested == null ? 0 : (now - syncChainRequested.getValue())
                 / Constant.ONE_THOUSAND,
         syncBlockInProcess.size())
         + nodeStatistics.toString() + "\n";

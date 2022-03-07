@@ -40,9 +40,9 @@ public class NodeStatistics {
   @Getter
   private int disconnectTimes = 0;
   @Getter
-  private ReasonCode aloneLastRemoteDisconnectReason = null;
+  private ReasonCode tronLastRemoteDisconnectReason = null;
   @Getter
-  private ReasonCode aloneLastLocalDisconnectReason = null;
+  private ReasonCode tronLastLocalDisconnectReason = null;
   private long lastDisconnectedTime = 0;
   private long firstDisconnectedTime = 0;
   private Reputation reputation;
@@ -65,54 +65,54 @@ public class NodeStatistics {
   }
 
   public ReasonCode getDisconnectReason() {
-    if (aloneLastLocalDisconnectReason != null) {
-      return aloneLastLocalDisconnectReason;
+    if (tronLastLocalDisconnectReason != null) {
+      return tronLastLocalDisconnectReason;
     }
-    if (aloneLastRemoteDisconnectReason != null) {
-      return aloneLastRemoteDisconnectReason;
+    if (tronLastRemoteDisconnectReason != null) {
+      return tronLastRemoteDisconnectReason;
     }
     return ReasonCode.UNKNOWN;
   }
 
   public boolean isReputationPenalized() {
 
-    if (wasDisconnected() && aloneLastRemoteDisconnectReason == ReasonCode.TOO_MANY_PEERS
+    if (wasDisconnected() && tronLastRemoteDisconnectReason == ReasonCode.TOO_MANY_PEERS
         && System.currentTimeMillis() - lastDisconnectedTime < TOO_MANY_PEERS_PENALIZE_TIMEOUT) {
       return true;
     }
 
-    if (wasDisconnected() && aloneLastRemoteDisconnectReason == ReasonCode.DUPLICATE_PEER
+    if (wasDisconnected() && tronLastRemoteDisconnectReason == ReasonCode.DUPLICATE_PEER
         && System.currentTimeMillis() - lastDisconnectedTime < TOO_MANY_PEERS_PENALIZE_TIMEOUT) {
       return true;
     }
 
     if (firstDisconnectedTime > 0
         && (System.currentTimeMillis() - firstDisconnectedTime) > CLEAR_CYCLE_TIME) {
-      aloneLastLocalDisconnectReason = null;
-      aloneLastRemoteDisconnectReason = null;
+      tronLastLocalDisconnectReason = null;
+      tronLastRemoteDisconnectReason = null;
       disconnectTimes = 0;
       persistedReputation = 0;
       firstDisconnectedTime = 0;
     }
 
-    if (aloneLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_PROTOCOL
-        || aloneLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_PROTOCOL
-        || aloneLastLocalDisconnectReason == ReasonCode.BAD_PROTOCOL
-        || aloneLastRemoteDisconnectReason == ReasonCode.BAD_PROTOCOL
-        || aloneLastLocalDisconnectReason == ReasonCode.BAD_BLOCK
-        || aloneLastRemoteDisconnectReason == ReasonCode.BAD_BLOCK
-        || aloneLastLocalDisconnectReason == ReasonCode.BAD_TX
-        || aloneLastRemoteDisconnectReason == ReasonCode.BAD_TX
-        || aloneLastLocalDisconnectReason == ReasonCode.FORKED
-        || aloneLastRemoteDisconnectReason == ReasonCode.FORKED
-        || aloneLastLocalDisconnectReason == ReasonCode.UNLINKABLE
-        || aloneLastRemoteDisconnectReason == ReasonCode.UNLINKABLE
-        || aloneLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_CHAIN
-        || aloneLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_CHAIN
-        || aloneLastRemoteDisconnectReason == ReasonCode.SYNC_FAIL
-        || aloneLastLocalDisconnectReason == ReasonCode.SYNC_FAIL
-        || aloneLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_VERSION
-        || aloneLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_VERSION) {
+    if (tronLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_PROTOCOL
+        || tronLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_PROTOCOL
+        || tronLastLocalDisconnectReason == ReasonCode.BAD_PROTOCOL
+        || tronLastRemoteDisconnectReason == ReasonCode.BAD_PROTOCOL
+        || tronLastLocalDisconnectReason == ReasonCode.BAD_BLOCK
+        || tronLastRemoteDisconnectReason == ReasonCode.BAD_BLOCK
+        || tronLastLocalDisconnectReason == ReasonCode.BAD_TX
+        || tronLastRemoteDisconnectReason == ReasonCode.BAD_TX
+        || tronLastLocalDisconnectReason == ReasonCode.FORKED
+        || tronLastRemoteDisconnectReason == ReasonCode.FORKED
+        || tronLastLocalDisconnectReason == ReasonCode.UNLINKABLE
+        || tronLastRemoteDisconnectReason == ReasonCode.UNLINKABLE
+        || tronLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_CHAIN
+        || tronLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_CHAIN
+        || tronLastRemoteDisconnectReason == ReasonCode.SYNC_FAIL
+        || tronLastLocalDisconnectReason == ReasonCode.SYNC_FAIL
+        || tronLastRemoteDisconnectReason == ReasonCode.INCOMPATIBLE_VERSION
+        || tronLastLocalDisconnectReason == ReasonCode.INCOMPATIBLE_VERSION) {
       persistedReputation = 0;
       return true;
     }
@@ -121,12 +121,12 @@ public class NodeStatistics {
 
   public void nodeDisconnectedRemote(ReasonCode reason) {
     lastDisconnectedTime = System.currentTimeMillis();
-    aloneLastRemoteDisconnectReason = reason;
+    tronLastRemoteDisconnectReason = reason;
   }
 
   public void nodeDisconnectedLocal(ReasonCode reason) {
     lastDisconnectedTime = System.currentTimeMillis();
-    aloneLastLocalDisconnectReason = reason;
+    tronLastLocalDisconnectReason = reason;
   }
 
   public void notifyDisconnect() {
@@ -134,7 +134,7 @@ public class NodeStatistics {
     if (firstDisconnectedTime <= 0) {
       firstDisconnectedTime = lastDisconnectedTime;
     }
-    if (aloneLastLocalDisconnectReason == ReasonCode.RESET) {
+    if (tronLastLocalDisconnectReason == ReasonCode.RESET) {
       return;
     }
     disconnectTimes++;
@@ -169,11 +169,11 @@ public class NodeStatistics {
         + ((int) discoverMessageLatency.getAvg()) + "ms"
         + ", p2p: " + p2pHandShake + "/" + messageStatistics.p2pInHello + "/"
         + messageStatistics.p2pOutHello + " "
-        + ", alone: " + messageStatistics.aloneInMessage + "/" + messageStatistics.aloneOutMessage
+        + ", tron: " + messageStatistics.tronInMessage + "/" + messageStatistics.tronOutMessage
         + " "
         + (wasDisconnected() ? "X " + disconnectTimes : "")
-        + (aloneLastLocalDisconnectReason != null ? ("<=" + aloneLastLocalDisconnectReason) : " ")
-        + (aloneLastRemoteDisconnectReason != null ? ("=>" + aloneLastRemoteDisconnectReason) : " ")
+        + (tronLastLocalDisconnectReason != null ? ("<=" + tronLastLocalDisconnectReason) : " ")
+        + (tronLastRemoteDisconnectReason != null ? ("=>" + tronLastRemoteDisconnectReason) : " ")
         + ", tcp flow: " + tcpFlow.getTotalCount();
   }
 

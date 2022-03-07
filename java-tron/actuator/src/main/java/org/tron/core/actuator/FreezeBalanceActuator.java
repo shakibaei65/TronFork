@@ -2,7 +2,7 @@ package org.tron.core.actuator;
 
 import static org.tron.core.actuator.ActuatorConstant.NOT_EXIST_STR;
 import static org.tron.core.config.Parameter.ChainConstant.FROZEN_PERIOD;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -85,7 +85,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
           accountCapsule.setFrozenForBandwidth(newFrozenBalanceForBandwidth, expireTime);
         }
         dynamicStore
-            .addTotalNetWeight(frozenBalance / ALN_PRECISION);
+            .addTotalNetWeight(frozenBalance / TRX_PRECISION);
         break;
       case ENERGY:
         if (!ArrayUtils.isEmpty(receiverAddress)
@@ -101,7 +101,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
           accountCapsule.setFrozenForEnergy(newFrozenBalanceForEnergy, expireTime);
         }
         dynamicStore
-            .addTotalEnergyWeight(frozenBalance / ALN_PRECISION);
+            .addTotalEnergyWeight(frozenBalance / TRX_PRECISION);
         break;
       case TRON_POWER:
         long newFrozenBalanceForTronPower =
@@ -109,7 +109,7 @@ public class FreezeBalanceActuator extends AbstractActuator {
         accountCapsule.setFrozenForTronPower(newFrozenBalanceForTronPower, expireTime);
 
         dynamicStore
-            .addTotalTronPowerWeight(frozenBalance / ALN_PRECISION);
+            .addTotalTronPowerWeight(frozenBalance / TRX_PRECISION);
         break;
       default:
         logger.debug("Resource Code Error.");
@@ -163,8 +163,8 @@ public class FreezeBalanceActuator extends AbstractActuator {
     if (frozenBalance <= 0) {
       throw new ContractValidateException("frozenBalance must be positive");
     }
-    if (frozenBalance < ALN_PRECISION) {
-      throw new ContractValidateException("frozenBalance must be more than 1ALN");
+    if (frozenBalance < TRX_PRECISION) {
+      throw new ContractValidateException("frozenBalance must be more than 1TRX");
     }
 
     int frozenCount = accountCapsule.getFrozenCount();

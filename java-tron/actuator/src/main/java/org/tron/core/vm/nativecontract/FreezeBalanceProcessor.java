@@ -2,21 +2,20 @@ package org.tron.core.vm.nativecontract;
 
 import static org.tron.core.actuator.ActuatorConstant.STORE_NOT_EXIST;
 import static org.tron.core.config.Parameter.ChainConstant.FROZEN_PERIOD;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.FastByteComparisons;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.DelegatedResourceCapsule;
-import org.tron.core.exception.ContractExeException;
 import org.tron.core.exception.ContractValidateException;
 import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.core.vm.nativecontract.param.FreezeBalanceParam;
 import org.tron.core.vm.repository.Repository;
 import org.tron.protos.Protocol;
 
-@Slf4j(topic = "Processor")
+@Slf4j(topic = "VMProcessor")
 public class FreezeBalanceProcessor {
 
   public void validate(FreezeBalanceParam param, Repository repo) throws ContractValidateException {
@@ -30,8 +29,8 @@ public class FreezeBalanceProcessor {
     long frozenBalance = param.getFrozenBalance();
     if (frozenBalance <= 0) {
       throw new ContractValidateException("FrozenBalance must be positive");
-    } else if (frozenBalance < ALN_PRECISION) {
-      throw new ContractValidateException("FrozenBalance must be more than 1ALN");
+    } else if (frozenBalance < TRX_PRECISION) {
+      throw new ContractValidateException("FrozenBalance must be more than 1TRX");
     } else if (frozenBalance > ownerCapsule.getBalance()) {
       throw new ContractValidateException("FrozenBalance must be less than accountBalance");
     }
@@ -119,10 +118,10 @@ public class FreezeBalanceProcessor {
     // adjust total resource
     switch (param.getResourceType()) {
       case BANDWIDTH:
-        repo.addTotalNetWeight(frozenBalance / ALN_PRECISION);
+        repo.addTotalNetWeight(frozenBalance / TRX_PRECISION);
         break;
       case ENERGY:
-        repo.addTotalEnergyWeight(frozenBalance / ALN_PRECISION);
+        repo.addTotalEnergyWeight(frozenBalance / TRX_PRECISION);
         break;
       default:
         //this should never happen

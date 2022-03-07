@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.core.capsule.AbiCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 import java.util.Objects;
 
 @Slf4j(topic = "DB")
 @Component
-public class AbiStore extends AloneStoreWithRevoking<AbiCapsule> {
+public class AbiStore extends TronStoreWithRevoking<AbiCapsule> {
 
   @Autowired
   private AbiStore(@Value("abi") String dbName) {

@@ -7,7 +7,7 @@ import org.tron.common.utils.ByteArray;
 
 @Slf4j
 @Component
-public class CommonDataBase extends AloneDatabase<byte[]> {
+public class CommonDataBase extends TronDatabase<byte[]> {
 
   private static final byte[] LATEST_PBFT_BLOCK_NUM = "LATEST_PBFT_BLOCK_NUM".getBytes();
 

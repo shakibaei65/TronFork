@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.core.capsule.BytesCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 
 @Component
-public class NullifierStore extends AloneStoreWithRevoking<BytesCapsule> {
+public class NullifierStore extends TronStoreWithRevoking<BytesCapsule> {
 
   @Autowired
   public NullifierStore(@Value("nullifier") String dbName) {

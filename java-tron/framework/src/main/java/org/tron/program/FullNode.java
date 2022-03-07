@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.tron.common.application.Application;
 import org.tron.common.application.ApplicationFactory;
-import org.tron.common.application.AloneApplicationContext;
+import org.tron.common.application.TronApplicationContext;
 import org.tron.common.parameter.CommonParameter;
 import org.tron.core.Constant;
 import org.tron.core.config.DefaultConfig;
@@ -69,8 +69,8 @@ public class FullNode {
 
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     beanFactory.setAllowCircularReferences(false);
-    AloneApplicationContext context =
-        new AloneApplicationContext(beanFactory);
+    TronApplicationContext context =
+        new TronApplicationContext(beanFactory);
     context.register(DefaultConfig.class);
 
     context.refresh();

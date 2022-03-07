@@ -9,7 +9,7 @@ import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.ChainInventory;
 
-public class ChainInventoryMessage extends AloneMessage {
+public class ChainInventoryMessage extends TronMessage {
 
   protected ChainInventory chainInventory;
 

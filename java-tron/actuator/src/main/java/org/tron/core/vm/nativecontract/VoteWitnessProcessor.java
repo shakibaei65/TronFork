@@ -1,9 +1,10 @@
 package org.tron.core.vm.nativecontract;
 
 import static org.tron.core.actuator.ActuatorConstant.NOT_EXIST_STR;
+import static org.tron.core.actuator.ActuatorConstant.STORE_NOT_EXIST;
 import static org.tron.core.actuator.ActuatorConstant.WITNESS_EXCEPTION_STR;
 import static org.tron.core.config.Parameter.ChainConstant.MAX_VOTE_NUMBER;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.common.math.LongMath;
 import com.google.protobuf.ByteString;
@@ -14,7 +15,6 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.tron.common.utils.StringUtil;
-import static org.tron.core.actuator.ActuatorConstant.*;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.VotesCapsule;
 import org.tron.core.exception.ContractExeException;
@@ -24,7 +24,7 @@ import org.tron.core.vm.repository.Repository;
 import org.tron.core.vm.utils.VoteRewardUtil;
 import org.tron.protos.Protocol;
 
-@Slf4j(topic = "Processor")
+@Slf4j(topic = "VMProcessor")
 public class VoteWitnessProcessor {
 
   public void validate(VoteWitnessParam param, Repository repo) throws ContractValidateException {
@@ -88,7 +88,7 @@ public class VoteWitnessProcessor {
       }
 
       long tronPower = accountCapsule.getTronPower();
-      sum =  LongMath.checkedMultiply(sum, ALN_PRECISION);
+      sum =  LongMath.checkedMultiply(sum, TRX_PRECISION);
       if (sum > tronPower) {
         throw new ContractExeException(
             "The total number of votes[" + sum + "] is greater than the tronPower[" + tronPower

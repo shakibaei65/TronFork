@@ -54,7 +54,7 @@ public class AccountPermissionUpdateActuator extends AbstractActuator {
 
       Commons.adjustBalance(accountStore, ownerAddress, -fee);
       if (chainBaseManager.getDynamicPropertiesStore().supportBlackHoleOptimization()) {
-        chainBaseManager.getDynamicPropertiesStore().burnAln(fee);
+        chainBaseManager.getDynamicPropertiesStore().burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(), fee);
       }

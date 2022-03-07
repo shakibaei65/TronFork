@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class TooBigTransactionResultException extends AloneException {
+public class TooBigTransactionResultException extends TronException {
 
   public TooBigTransactionResultException() {
     super("too big transaction result");

@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.actuator;
 
 import static org.tron.core.actuator.ActuatorConstant.CONTRACT_NOT_EXIST;
@@ -112,7 +127,7 @@ public class MarketSellAssetActuator extends AbstractActuator {
       accountCapsule.setBalance(accountCapsule.getBalance() - fee);
       // add to blackhole address
       if (dynamicStore.supportBlackHoleOptimization()) {
-        dynamicStore.burnAln(fee);
+        dynamicStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(), fee);
       }
@@ -377,13 +392,13 @@ public class MarketSellAssetActuator extends AbstractActuator {
     long makerSellRemainQuantity = makerOrderCapsule.getSellTokenQuantityRemain();
 
     // according to the price of maker, calculate the quantity of taker can buy
-    // for makerPrice,sellToken is A,buyToken is ALN.
-    // for takerPrice,buyToken is A,sellToken is ALN.
+    // for makerPrice,sellToken is A,buyToken is TRX.
+    // for takerPrice,buyToken is A,sellToken is TRX.
 
-    // makerSellTokenQuantity_A/makerBuyTokenQuantity_ALN =
-    //   takerBuyTokenQuantityCurrent_A/takerSellTokenQuantityRemain_ALN
-    // => takerBuyTokenQuantityCurrent_A = takerSellTokenQuantityRemain_ALN *
-    //   makerSellTokenQuantity_A/makerBuyTokenQuantity_ALN
+    // makerSellTokenQuantity_A/makerBuyTokenQuantity_TRX =
+    //   takerBuyTokenQuantityCurrent_A/takerSellTokenQuantityRemain_TRX
+    // => takerBuyTokenQuantityCurrent_A = takerSellTokenQuantityRemain_TRX *
+    //   makerSellTokenQuantity_A/makerBuyTokenQuantity_TRX
 
     long takerBuyTokenQuantityRemain = MarketUtils
         .multiplyAndDivide(takerSellRemainQuantity, makerSellQuantity, makerBuyQuantity);
@@ -403,10 +418,10 @@ public class MarketSellAssetActuator extends AbstractActuator {
     if (takerBuyTokenQuantityRemain == makerOrderCapsule.getSellTokenQuantityRemain()) {
       // taker == maker
 
-      // makerSellTokenQuantityRemain_A/makerBuyTokenQuantityCurrent_ALN =
-      //   makerSellTokenQuantity_A/makerBuyTokenQuantity_ALN
-      // => makerBuyTokenQuantityCurrent_ALN = makerSellTokenQuantityRemain_A *
-      //   makerBuyTokenQuantity_ALN / makerSellTokenQuantity_A
+      // makerSellTokenQuantityRemain_A/makerBuyTokenQuantityCurrent_TRX =
+      //   makerSellTokenQuantity_A/makerBuyTokenQuantity_TRX
+      // => makerBuyTokenQuantityCurrent_TRX = makerSellTokenQuantityRemain_A *
+      //   makerBuyTokenQuantity_TRX / makerSellTokenQuantity_A
 
       makerBuyTokenQuantityReceive = MarketUtils
           .multiplyAndDivide(makerSellRemainQuantity, makerBuyQuantity, makerSellQuantity);
@@ -440,8 +455,8 @@ public class MarketSellAssetActuator extends AbstractActuator {
 
       // if the quantity of taker want to buy is bigger than the remain of maker want to sell,
       // consume the order of maker
-      // makerSellTokenQuantityRemain_A/makerBuyTokenQuantityCurrent_ALN =
-      //   makerSellTokenQuantity_A/makerBuyTokenQuantity_ALN
+      // makerSellTokenQuantityRemain_A/makerBuyTokenQuantityCurrent_TRX =
+      //   makerSellTokenQuantity_A/makerBuyTokenQuantity_TRX
       makerBuyTokenQuantityReceive = MarketUtils
           .multiplyAndDivide(makerSellRemainQuantity, makerBuyQuantity, makerSellQuantity);
 
@@ -469,8 +484,8 @@ public class MarketSellAssetActuator extends AbstractActuator {
     orderStore.put(makerOrderCapsule.getID().toByteArray(), makerOrderCapsule);
 
     // add token into account
-    addAlnOrToken(takerOrderCapsule, takerBuyTokenQuantityReceive, takerAccountCapsule);
-    addAlnOrToken(makerOrderCapsule, makerBuyTokenQuantityReceive);
+    addTrxOrToken(takerOrderCapsule, takerBuyTokenQuantityReceive, takerAccountCapsule);
+    addTrxOrToken(makerOrderCapsule, makerBuyTokenQuantityReceive);
 
     MarketOrderDetail orderDetail = MarketOrderDetail.newBuilder()
         .setMakerOrderId(makerOrderCapsule.getID())
@@ -517,7 +532,7 @@ public class MarketSellAssetActuator extends AbstractActuator {
   }
 
   // for taker
-  private void addAlnOrToken(MarketOrderCapsule orderCapsule, long num,
+  private void addTrxOrToken(MarketOrderCapsule orderCapsule, long num,
       AccountCapsule accountCapsule) {
 
     byte[] buyTokenId = orderCapsule.getBuyTokenId();
@@ -529,7 +544,7 @@ public class MarketSellAssetActuator extends AbstractActuator {
     }
   }
 
-  private void addAlnOrToken(MarketOrderCapsule orderCapsule, long num) {
+  private void addTrxOrToken(MarketOrderCapsule orderCapsule, long num) {
     AccountCapsule accountCapsule = accountStore
         .get(orderCapsule.getOwnerAddress().toByteArray());
 

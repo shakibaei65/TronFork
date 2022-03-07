@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.actuator;
 
 import static org.tron.core.config.Parameter.ChainConstant.FROZEN_PERIOD;
@@ -71,7 +86,7 @@ public class AssetIssueActuator extends AbstractActuator {
 
       Commons.adjustBalance(accountStore, ownerAddress, -fee);
       if (dynamicStore.supportBlackHoleOptimization()) {
-        dynamicStore.burnAln(fee);
+        dynamicStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(), fee);//send to blackhole
       }
@@ -151,8 +166,8 @@ public class AssetIssueActuator extends AbstractActuator {
 
     if (dynamicStore.getAllowSameTokenName() != 0) {
       String name = assetIssueContract.getName().toStringUtf8().toLowerCase();
-      if (("aln").equals(name)) {
-        throw new ContractValidateException("assetName can't be aln");
+      if (("trx").equals(name)) {
+        throw new ContractValidateException("assetName can't be trx");
       }
     }
 
@@ -200,8 +215,8 @@ public class AssetIssueActuator extends AbstractActuator {
       throw new ContractValidateException("TotalSupply must greater than 0!");
     }
 
-    if (assetIssueContract.getAlnNum() <= 0) {
-      throw new ContractValidateException("AlnNum must greater than 0!");
+    if (assetIssueContract.getTrxNum() <= 0) {
+      throw new ContractValidateException("TrxNum must greater than 0!");
     }
 
     if (assetIssueContract.getNum() <= 0) {

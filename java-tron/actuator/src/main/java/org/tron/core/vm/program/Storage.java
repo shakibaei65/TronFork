@@ -46,7 +46,7 @@ public class Storage {
 
   private byte[] compose(byte[] key, byte[] addrHash) {
     if (VMConfig.allowTvmCompatibleEvm() && contractVersion == 1) {
-      return Hash.sha3(ByteUtil.merge(addrHash, key));
+      key = Hash.sha3(key);
     }
     byte[] result = new byte[key.length];
     arraycopy(addrHash, 0, result, 0, PREFIX_BYTES);
@@ -59,16 +59,16 @@ public class Storage {
     return Hash.sha3(address);
   }
 
-  private static byte[] addrHash(byte[] address, byte[] alnHash) {
-    if (ByteUtil.isNullOrZeroArray(alnHash)) {
+  private static byte[] addrHash(byte[] address, byte[] trxHash) {
+    if (ByteUtil.isNullOrZeroArray(trxHash)) {
       return Hash.sha3(address);
     }
-    return Hash.sha3(ByteUtil.merge(address, alnHash));
+    return Hash.sha3(ByteUtil.merge(address, trxHash));
   }
 
-  public void generateAddrHash(byte[] alnId) {
+  public void generateAddrHash(byte[] trxId) {
     // update addreHash for create2
-    addrHash = addrHash(address, alnId);
+    addrHash = addrHash(address, trxId);
   }
 
   public DataWord getValue(DataWord key) {

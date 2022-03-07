@@ -111,10 +111,10 @@ public class TxCacheDB implements DB<byte[], byte[]>, Flusher {
       keys.stream()
           .min(Long::compareTo)
           .ifPresent(k -> {
-            Collection<Key> alnHashs = blockNumMap.get(k);
+            Collection<Key> trxHashs = blockNumMap.get(k);
             // remove transaction from persistentStore,
             // if foreach is inefficient, change remove-foreach to remove-batch
-            alnHashs.forEach(key -> persistentStore.remove(key.getBytes()));
+            trxHashs.forEach(key -> persistentStore.remove(key.getBytes()));
             blockNumMap.removeAll(k);
             logger.debug("******removeEldest block number:{}, block count:{}", k, keys.size());
           });

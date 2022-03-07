@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class CancelException extends AloneException {
+public class CancelException extends TronException {
 
   public CancelException() {
     super();

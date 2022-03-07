@@ -29,16 +29,16 @@ public class JsonRpcServlet extends RateLimiterServlet {
   @Autowired
   private Manager manager;
 
-  // @Override
+  @Override
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
 
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    AloneJsonRpcImpl jsonRpcImpl = new AloneJsonRpcImpl(nodeInfoService, wallet, manager);
+    TronJsonRpcImpl jsonRpcImpl = new TronJsonRpcImpl(nodeInfoService, wallet, manager);
     Object compositeService = ProxyUtil.createCompositeServiceProxy(
         cl,
         new Object[] {jsonRpcImpl},
-        new Class[] {AloneJsonRpc.class},
+        new Class[] {TronJsonRpc.class},
         true);
 
     rpcServer = new JsonRpcServer(compositeService);
@@ -59,6 +59,7 @@ public class JsonRpcServlet extends RateLimiterServlet {
     rpcServer.setShouldLogInvocationErrors(false);
   }
 
+  @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     rpcServer.handle(req, resp);
   }

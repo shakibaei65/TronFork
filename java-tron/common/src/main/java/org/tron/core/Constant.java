@@ -14,7 +14,7 @@ public class Constant {
   // the block number that split between the snapshot and history
   public static final String SPLIT_BLOCK_NUM = "split_block_num";
 
-  public static final byte ADD_PRE_FIX_BYTE_MAINNET = (byte) 0x17;   //17 + address
+  public static final byte ADD_PRE_FIX_BYTE_MAINNET = (byte) 0x17;   //41 + address
   public static final String ADD_PRE_FIX_STRING_MAINNET = "17";
   public static final byte ADD_PRE_FIX_BYTE_TESTNET = (byte) 0xa0;   //a0 + address
   public static final String ADD_PRE_FIX_STRING_TESTNET = "a0";
@@ -25,7 +25,7 @@ public class Constant {
   public static final long TRANSACTION_DEFAULT_EXPIRATION_TIME = 60 * 1_000L; //60 seconds
   public static final long TRANSACTION_FEE_POOL_PERIOD = 1; //1 blocks
   // config for smart contract
-  public static final long SUN_PER_ENERGY = 100; // 1 us = 100 SUN = 100 * 10^-6 ALN
+  public static final long SUN_PER_ENERGY = 100; // 1 us = 100 SUN = 100 * 10^-6 TRX
   public static final long ENERGY_LIMIT_IN_CONSTANT_TX = 3_000_000L; // ref: 1 us = 1 energy
   public static final long MAX_RESULT_SIZE_IN_TX = 64; // max 8 * 8 items in result
   public static final long PB_DEFAULT_ENERGY_LIMIT = 0L;
@@ -114,7 +114,7 @@ public class Constant {
   public static final String NODE_PRODUCED_TIMEOUT = "node.blockProducedTimeOut";
   public static final String NODE_MAX_HTTP_CONNECT_NUMBER = "node.maxHttpConnectNumber";
 
-  public static final String NODE_NET_MAX_ALN_PER_SECOND = "node.netMaxAlnPerSecond";
+  public static final String NODE_NET_MAX_TRX_PER_SECOND = "node.netMaxTrxPerSecond";
   public static final String NODE_RPC_MAX_CONNECTION_AGE_IN_MILLIS = "node.rpc.maxConnectionAgeInMillis";
   public static final String NODE_RPC_MAX_MESSAGE_SIZE = "node.rpc.maxMessageSize";
 
@@ -173,13 +173,13 @@ public class Constant {
 
   public static final String STORAGE_NEEDTO_UPDATE_ASSET = "storage.needToUpdateAsset";
 
-  public static final String ALN_REFERENCE_BLOCK = "aln.reference.block";
+  public static final String TRX_REFERENCE_BLOCK = "trx.reference.block";
 
-  public static final String ALN_EXPIRATION_TIME_IN_MILLIS_SECONDS = "aln.expiration.timeInMilliseconds";
+  public static final String TRX_EXPIRATION_TIME_IN_MILLIS_SECONDS = "trx.expiration.timeInMilliseconds";
 
   public static final String NODE_RPC_MIN_EFFECTIVE_CONNECTION = "node.rpc.minEffectiveConnection";
 
-  public static final String NODE_RPC_ALN_CACHE_ENABLE = "node.rpc.alnCacheEnable";
+  public static final String NODE_RPC_TRX_CACHE_ENABLE = "node.rpc.trxCacheEnable";
 
   public static final String ENERGY_LIMIT_BLOCK_NUM = "enery.limit.block.num";
 

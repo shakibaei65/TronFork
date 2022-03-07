@@ -1,7 +1,7 @@
 package org.tron.core.vm.nativecontract;
 
 import static org.tron.core.actuator.ActuatorConstant.STORE_NOT_EXIST;
-import static org.tron.core.config.Parameter.ChainConstant.ALN_PRECISION;
+import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
@@ -19,7 +19,7 @@ import org.tron.core.vm.repository.Repository;
 import org.tron.core.vm.utils.VoteRewardUtil;
 import org.tron.protos.Protocol;
 
-@Slf4j(topic = "Processor")
+@Slf4j(topic = "VMProcessor")
 public class UnfreezeBalanceProcessor {
 
   public void validate(UnfreezeBalanceParam param, Repository repo)
@@ -188,10 +188,10 @@ public class UnfreezeBalanceProcessor {
     // adjust total resource, used to be a bug here
     switch (param.getResourceType()) {
       case BANDWIDTH:
-        repo.addTotalNetWeight(-unfreezeBalance / ALN_PRECISION);
+        repo.addTotalNetWeight(-unfreezeBalance / TRX_PRECISION);
         break;
       case ENERGY:
-        repo.addTotalEnergyWeight(-unfreezeBalance / ALN_PRECISION);
+        repo.addTotalEnergyWeight(-unfreezeBalance / TRX_PRECISION);
         break;
       default:
         //this should never happen
@@ -205,7 +205,7 @@ public class UnfreezeBalanceProcessor {
       for (Protocol.Vote vote : accountCapsule.getVotesList()) {
         usedTronPower += vote.getVoteCount();
       }
-      if (accountCapsule.getTronPower() < usedTronPower * ALN_PRECISION) {
+      if (accountCapsule.getTronPower() < usedTronPower * TRX_PRECISION) {
         VoteRewardUtil.withdrawReward(ownerAddress, repo);
         VotesCapsule votesCapsule = repo.getVotes(ownerAddress);
         accountCapsule = repo.getAccount(ownerAddress);

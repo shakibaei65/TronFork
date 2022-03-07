@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class ContractExeException extends AloneException {
+public class ContractExeException extends TronException {
 
   public ContractExeException() {
     super();

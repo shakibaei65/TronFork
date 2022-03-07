@@ -37,11 +37,11 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
   @Setter
   private TransactionLogTrigger transactionLogTrigger;
 
-  public TransactionLogTriggerCapsule(TransactionCapsule alnCapsule, BlockCapsule blockCapsule) {
-    this(alnCapsule, blockCapsule, 0, 0, 0, null, 0);
+  public TransactionLogTriggerCapsule(TransactionCapsule trxCapsule, BlockCapsule blockCapsule) {
+    this(trxCapsule, blockCapsule, 0, 0, 0, null, 0);
   }
 
-  public TransactionLogTriggerCapsule(TransactionCapsule alnCapsule, BlockCapsule blockCapsule,
+  public TransactionLogTriggerCapsule(TransactionCapsule trxCapsule, BlockCapsule blockCapsule,
       int txIndex, long preCumulativeEnergyUsed, long preCumulativeLogCount,
       TransactionInfo transactionInfo, long energyUnitPrice) {
     transactionLogTrigger = new TransactionLogTrigger();
@@ -52,21 +52,21 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
       transactionLogTrigger.setBlockHash(blockHash);
     }
 
-    String transactionHash = alnCapsule.getTransactionId().toString();
+    String transactionHash = trxCapsule.getTransactionId().toString();
     transactionLogTrigger.setTransactionId(transactionHash);
     transactionLogTrigger.setTimeStamp(blockCapsule.getTimeStamp());
-    transactionLogTrigger.setBlockNumber(alnCapsule.getBlockNum());
-    transactionLogTrigger.setData(Hex.toHexString(alnCapsule
+    transactionLogTrigger.setBlockNumber(trxCapsule.getBlockNum());
+    transactionLogTrigger.setData(Hex.toHexString(trxCapsule
         .getInstance().getRawData().getData().toByteArray()));
 
-    TransactionTrace alnTrace = alnCapsule.getAlnTrace();
+    TransactionTrace trxTrace = trxCapsule.getTrxTrace();
 
     //result
-    if (Objects.nonNull(alnCapsule.getContractRet())) {
-      transactionLogTrigger.setResult(alnCapsule.getContractRet().toString());
+    if (Objects.nonNull(trxCapsule.getContractRet())) {
+      transactionLogTrigger.setResult(trxCapsule.getContractRet().toString());
     }
 
-    Transaction.raw rawData = alnCapsule.getInstance().getRawData();
+    Transaction.raw rawData = trxCapsule.getInstance().getRawData();
     ContractType contractType = null;
 
     if (Objects.nonNull(rawData)) {
@@ -95,7 +95,7 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
               TransferContract transferContract = contractParameter.unpack(TransferContract.class);
 
               if (Objects.nonNull(transferContract)) {
-                transactionLogTrigger.setAssetName("aln");
+                transactionLogTrigger.setAssetName("trx");
 
                 if (Objects.nonNull(transferContract.getOwnerAddress())) {
                   transactionLogTrigger.setFromAddress(StringUtil
@@ -167,21 +167,21 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
 
     long energyUsageTotal = 0;
     // receipt
-    if (Objects.nonNull(alnTrace) && Objects.nonNull(alnTrace.getReceipt())) {
-      energyUsageTotal = alnTrace.getReceipt().getEnergyUsageTotal();
+    if (Objects.nonNull(trxTrace) && Objects.nonNull(trxTrace.getReceipt())) {
+      energyUsageTotal = trxTrace.getReceipt().getEnergyUsageTotal();
 
-      transactionLogTrigger.setEnergyFee(alnTrace.getReceipt().getEnergyFee());
-      transactionLogTrigger.setOriginEnergyUsage(alnTrace.getReceipt().getOriginEnergyUsage());
+      transactionLogTrigger.setEnergyFee(trxTrace.getReceipt().getEnergyFee());
+      transactionLogTrigger.setOriginEnergyUsage(trxTrace.getReceipt().getOriginEnergyUsage());
       transactionLogTrigger.setEnergyUsageTotal(energyUsageTotal);
-      transactionLogTrigger.setNetUsage(alnTrace.getReceipt().getNetUsage());
-      transactionLogTrigger.setNetFee(alnTrace.getReceipt().getNetFee());
-      transactionLogTrigger.setEnergyUsage(alnTrace.getReceipt().getEnergyUsage());
+      transactionLogTrigger.setNetUsage(trxTrace.getReceipt().getNetUsage());
+      transactionLogTrigger.setNetFee(trxTrace.getReceipt().getNetFee());
+      transactionLogTrigger.setEnergyUsage(trxTrace.getReceipt().getEnergyUsage());
     }
 
     // program result
-    if (Objects.nonNull(alnTrace) && Objects.nonNull(alnTrace.getRuntime()) && Objects
-        .nonNull(alnTrace.getRuntime().getResult())) {
-      ProgramResult programResult = alnTrace.getRuntime().getResult();
+    if (Objects.nonNull(trxTrace) && Objects.nonNull(trxTrace.getRuntime()) && Objects
+        .nonNull(trxTrace.getRuntime().getResult())) {
+      ProgramResult programResult = trxTrace.getRuntime().getResult();
       ByteString contractResult = ByteString.copyFrom(programResult.getHReturn());
       ByteString contractAddress = ByteString.copyFrom(programResult.getContractAddress());
 
@@ -219,7 +219,7 @@ public class TransactionLogTriggerCapsule extends TriggerCapsule {
         logPojo.setAddress((log.getAddress() != null)
             ? Hex.toHexString(log.getAddress().toByteArray()) : "");
         logPojo.setBlockHash(blockHash);
-        logPojo.setBlockNumber(alnCapsule.getBlockNum());
+        logPojo.setBlockNumber(trxCapsule.getBlockNum());
         logPojo.setData(Hex.toHexString(log.getData().toByteArray()));
         logPojo.setLogIndex(preCumulativeLogCount + index);
 

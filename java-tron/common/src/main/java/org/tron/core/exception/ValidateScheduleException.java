@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class ValidateScheduleException extends AloneException {
+public class ValidateScheduleException extends TronException {
 
   public ValidateScheduleException() {
     super();

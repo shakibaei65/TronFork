@@ -59,7 +59,7 @@ public class TransferActuator extends AbstractActuator {
 
       Commons.adjustBalance(accountStore, ownerAddress, -(Math.addExact(fee, amount)));
       if (dynamicStore.supportBlackHoleOptimization()) {
-        dynamicStore.burnAln(fee);
+        dynamicStore.burnTrx(fee);
       } else {
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(), fee);
       }
@@ -109,7 +109,7 @@ public class TransferActuator extends AbstractActuator {
     }
 
     if (Arrays.equals(toAddress, ownerAddress)) {
-      throw new ContractValidateException("Cannot transfer ALN to yourself.");
+      throw new ContractValidateException("Cannot transfer TRX to yourself.");
     }
 
     AccountCapsule ownerAccount = accountStore.get(ownerAddress);
@@ -129,16 +129,16 @@ public class TransferActuator extends AbstractActuator {
       if (toAccount == null) {
         fee = fee + dynamicStore.getCreateNewAccountFeeInSystemContract();
       }
-      //after ForbidTransferToContract proposal, send aln to smartContract by actuator is not allowed.
+      //after ForbidTransferToContract proposal, send trx to smartContract by actuator is not allowed.
       if (dynamicStore.getForbidTransferToContract() == 1
           && toAccount != null
           && toAccount.getType() == AccountType.Contract) {
 
-        throw new ContractValidateException("Cannot transfer ALN to a smartContract.");
+        throw new ContractValidateException("Cannot transfer TRX to a smartContract.");
 
       }
 
-      // after AllowTvmCompatibleEvm proposal, send aln to smartContract which version is one
+      // after AllowTvmCompatibleEvm proposal, send trx to smartContract which version is one
       // by actuator is not allowed.
       if (dynamicStore.getAllowTvmCompatibleEvm() == 1
           && toAccount != null
@@ -150,8 +150,8 @@ public class TransferActuator extends AbstractActuator {
               "Account type is Contract, but it is not exist in contract store.");
         } else if (contractCapsule.getContractVersion() == 1) {
           throw new ContractValidateException(
-              "Cannot transfer ALN to a smartContract which version is one. " +
-                  "Instead please use TriggerSmartContract ");
+              "Cannot transfer TRX to a smartContract which version is one. "
+                  + "Instead please use TriggerSmartContract ");
         }
       }
 

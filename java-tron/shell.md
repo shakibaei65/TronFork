@@ -2,11 +2,11 @@
 
 # Introduction
 
-Using the `start.sh` script, you can quickly and easily run and build java-alone.
+Using the `start.sh` script, you can quickly and easily run and build java-tron.
 
-If you already downloaded the `FullNode.jar`, you can use `start.sh` to run it, or if you have not downloaded java-alone source code or jar packages, you can use `start.sh` to download the source code, compile, run or get the latest release version in the form of a `jar package ` and run.
+If you already downloaded the `FullNode.jar`, you can use `start.sh` to run it, or if you have not downloaded java-tron source code or jar packages, you can use `start.sh` to download the source code, compile, run or get the latest release version in the form of a `jar package ` and run.
 
-The script is available in the java-alone project at [github](https://github.com/aloneprotocol/java-alone), or if you need a separate script: [start.sh](https://github.com/aloneprotocol/java-alone/blob/develop/start.sh)
+The script is available in the java-tron project at [github](https://github.com/tronprotocol/java-tron), or if you need a separate script: [start.sh](https://github.com/tronprotocol/java-tron/blob/develop/start.sh)
 
 ***
 
@@ -38,7 +38,7 @@ The script is available in the java-alone project at [github](https://github.com
   sh start.sh --release --run
   ```
   
-* Clone the source code, compile `java-alone`, and generate `FullNode.jar` and start it
+* Clone the source code, compile `java-tron`, and generate `FullNode.jar` and start it
 
   ```
   sh start.sh -cb --run
@@ -167,7 +167,7 @@ Following file structure will be generated after executed the above command and 
 
 **Clone the source code and build**
 
-Get the latest code from master branch of https://github.com/aloneprotocol/java-alone and compile. 
+Get the latest code from master branch of https://github.com/tronprotocol/java-tron and compile. 
 
 After using this command, the "FullNode" directory will be created, the compiled file `FullNode.jar` and the configuration file will be copied to this directory
 
@@ -181,7 +181,7 @@ Following file structure will be created：
 
 ```
 ├── ...
-├── java-alone
+├── java-tron
     ├── actuator/
     ├── chainbase/
     ├── common/
@@ -203,7 +203,7 @@ Following file structure will be created：
 ```
 
 ```
-├── java-alone/
+├── java-tron/
 ├── FullNode/
     |── config.conf
     ├── FullNode.jar
@@ -225,3 +225,5 @@ sh start.sh --run -d /tmp/db/database -m 128 -b 64000
 ```
 sh start.sh --release --run -d /tmp/db/database -m 128 -b 64000
 ```
+
+For more design details, please refer to: [TIP298](https://github.com/tronprotocol/tips/issues/298) | [Leveldb Startup Optimization Plugins](https://github.com/tronprotocol/documentation-en/blob/master/docs/developers/archive-manifest.md)

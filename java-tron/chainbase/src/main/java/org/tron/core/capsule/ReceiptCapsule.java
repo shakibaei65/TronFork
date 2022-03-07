@@ -219,7 +219,7 @@ public class ReceiptCapsule {
           !contractResult.equals(contractResult.OUT_OF_TIME)) {
         dynamicPropertiesStore.addTransactionFeePool(energyFee);
       } else if (dynamicPropertiesStore.supportBlackHoleOptimization()) {
-        dynamicPropertiesStore.burnAln(energyFee);
+        dynamicPropertiesStore.burnTrx(energyFee);
       } else {
         //send to blackHole
         Commons.adjustBalance(accountStore, accountStore.getBlackhole(),

@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tron.core.capsule.AccountTraceCapsule;
-import org.tron.core.db.AloneStoreWithRevoking;
+import org.tron.core.db.TronStoreWithRevoking;
 import org.tron.core.exception.BadItemException;
 
 
 @Component
 @Slf4j(topic = "DB")
-public class AccountTraceStore extends AloneStoreWithRevoking<AccountTraceCapsule>  {
+public class AccountTraceStore extends TronStoreWithRevoking<AccountTraceCapsule>  {
 
   @Autowired
   protected AccountTraceStore(@Value("account-trace") String dbName) {

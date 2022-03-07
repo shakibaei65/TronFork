@@ -229,7 +229,7 @@ public class FullNodeHttpApiService implements Service {
   @Autowired
   private BroadcastHexServlet broadcastHexServlet;
   @Autowired
-  private GetBurnAlnServlet getBurnAlnServlet;
+  private GetBurnTrxServlet getBurnTrxServlet;
   @Autowired
   private GetBrokerageServlet getBrokerageServlet;
   @Autowired
@@ -528,7 +528,7 @@ public class FullNodeHttpApiService implements Service {
           "/wallet/getaccountbalance");
       context.addServlet(new ServletHolder(getBlockBalanceServlet),
           "/wallet/getblockbalance");
-      context.addServlet(new ServletHolder(getBurnAlnServlet), "/wallet/getburnaln");
+      context.addServlet(new ServletHolder(getBurnTrxServlet), "/wallet/getburntrx");
       context.addServlet(new ServletHolder(getTransactionFromPendingServlet),
           "/wallet/gettransactionfrompending");
       context.addServlet(new ServletHolder(getTransactionListFromPendingServlet),

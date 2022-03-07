@@ -1,6 +1,6 @@
 package org.tron.core.exception;
 
-public class ValidateSignatureException extends AloneException {
+public class ValidateSignatureException extends TronException {
 
   public ValidateSignatureException() {
     super();

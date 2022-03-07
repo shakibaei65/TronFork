@@ -1,7 +1,5 @@
 package org.tron.common.storage;
 
-import static org.tron.core.db.TransactionTrace.convertToAloneAddress;
-
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import java.util.HashMap;
@@ -27,6 +25,7 @@ import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.db.BlockStore;
 import org.tron.core.db.Manager;
 import org.tron.core.db.TransactionStore;
+import org.tron.core.db.TransactionTrace;
 import org.tron.core.exception.BadItemException;
 import org.tron.core.exception.ItemNotFoundException;
 import org.tron.core.store.AccountStore;
@@ -349,8 +348,8 @@ public class DepositImpl implements Deposit {
       storage = new Storage(address, dbManager.getStorageRowStore());
     }
     ContractCapsule contract = getContract(address);
-    if (contract != null && !ByteUtil.isNullOrZeroArray(contract.getAlnHash())) {
-      storage.generateAddrHash(contract.getAlnHash());
+    if (contract != null && !ByteUtil.isNullOrZeroArray(contract.getTrxHash())) {
+      storage.generateAddrHash(contract.getTrxHash());
     }
     return storage;
   }
@@ -379,7 +378,7 @@ public class DepositImpl implements Deposit {
 
   @Override
   public synchronized void putStorageValue(byte[] address, DataWord key, DataWord value) {
-    address = convertToAloneAddress(address);
+    address = TransactionTrace.convertToTronAddress(address);
     if (getAccount(address) == null) {
       return;
     }
@@ -396,7 +395,7 @@ public class DepositImpl implements Deposit {
 
   @Override
   public synchronized DataWord getStorageValue(byte[] address, DataWord key) {
-    address = convertToAloneAddress(address);
+    address = TransactionTrace.convertToTronAddress(address);
     if (getAccount(address) == null) {
       return null;
     }
@@ -492,18 +491,18 @@ public class DepositImpl implements Deposit {
   }
 
   @Override
-  public TransactionCapsule getTransaction(byte[] alnHash) {
-    Key key = Key.create(alnHash);
+  public TransactionCapsule getTransaction(byte[] trxHash) {
+    Key key = Key.create(trxHash);
     if (transactionCache.containsKey(key)) {
       return transactionCache.get(key).getTransaction();
     }
 
     TransactionCapsule transactionCapsule;
     if (parent != null) {
-      transactionCapsule = parent.getTransaction(alnHash);
+      transactionCapsule = parent.getTransaction(trxHash);
     } else {
       try {
-        transactionCapsule = getTransactionStore().get(alnHash);
+        transactionCapsule = getTransactionStore().get(trxHash);
       } catch (BadItemException e) {
         transactionCapsule = null;
       }

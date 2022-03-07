@@ -1,3 +1,18 @@
+/*
+ * java-tron is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * java-tron is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.tron.core.capsule;
 
 import static java.lang.Math.max;
@@ -37,9 +52,9 @@ public class ContractCapsule implements ProtoCapsule<SmartContract> {
     }
   }
 
-  public static CreateSmartContract getSmartContractFromTransaction(Transaction aln) {
+  public static CreateSmartContract getSmartContractFromTransaction(Transaction trx) {
     try {
-      Any any = aln.getRawData().getContract(0).getParameter();
+      Any any = trx.getRawData().getContract(0).getParameter();
       CreateSmartContract createSmartContract = any.unpack(CreateSmartContract.class);
       return createSmartContract;
     } catch (InvalidProtocolBufferException e) {
@@ -47,9 +62,9 @@ public class ContractCapsule implements ProtoCapsule<SmartContract> {
     }
   }
 
-  public static TriggerSmartContract getTriggerContractFromTransaction(Transaction aln) {
+  public static TriggerSmartContract getTriggerContractFromTransaction(Transaction trx) {
     try {
-      Any any = aln.getRawData().getContract(0).getParameter();
+      Any any = trx.getRawData().getContract(0).getParameter();
       TriggerSmartContract contractTriggerContract = any.unpack(TriggerSmartContract.class);
       return contractTriggerContract;
     } catch (InvalidProtocolBufferException e) {
@@ -111,8 +126,8 @@ public class ContractCapsule implements ProtoCapsule<SmartContract> {
     this.smartContract = this.smartContract.toBuilder().setAbi(ABI.getDefaultInstance()).build();
   }
 
-  public byte[] getAlnHash() {
-    return this.smartContract.getAlnHash().toByteArray();
+  public byte[] getTrxHash() {
+    return this.smartContract.getTrxHash().toByteArray();
   }
 
   public int getContractVersion() {
